@@ -17,7 +17,8 @@ from typing import Optional
 
 from pydantic import ValidationError
 
-from .schemas import AgentDecision, AgentId, ChaosEvent
+from . import usage
+from .schemas import AgentDecision, ChaosEvent, CorpId
 
 log = logging.getLogger("agents")
 
@@ -25,7 +26,10 @@ PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
 SEED_PATH = Path(__file__).resolve().parent.parent / "data" / "seed.json"
 
 MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-TIMEOUT_S = float(os.getenv("GEMINI_TIMEOUT_S", "1.2"))
+# Default budget is generous — for the REST endpoints that exist to surface a
+# real Gemini decision on demand. The tick loop runs Gemini calls in the
+# background (see tick._kick_inflight) so its cadence is independent of latency.
+TIMEOUT_S = float(os.getenv("GEMINI_TIMEOUT_S", "8.0"))
 
 # Lazy client — None means seed-only mode (no API key, or import failed).
 _client = None
@@ -53,13 +57,13 @@ def _get_client():
 
 # --- Persona loading ----------------------------------------------------- #
 
-def load_persona(agent: AgentId) -> str:
-    path = PROMPTS_DIR / "hackers" / f"{agent.value.lower()}.md"
+def load_persona(corp: CorpId) -> str:
+    path = PROMPTS_DIR / "corps" / f"{corp.value.lower()}.md"
     return path.read_text() if path.exists() else ""
 
 
 def load_chaos_persona() -> str:
-    path = PROMPTS_DIR / "chaos_agent.md"
+    path = PROMPTS_DIR / "chaos_operator.md"
     return path.read_text() if path.exists() else ""
 
 
@@ -74,25 +78,27 @@ def _leaderboard_repr(state_snapshot: dict) -> str:
     return json.dumps(flat, indent=2)
 
 
-def _agent_prompt(agent: AgentId, state_snapshot: dict, panic: bool) -> str:
-    panic_line = (
-        "\n!! EMERGENCY: your stability < 20. Choose a recovery action. !!\n"
-        if panic
+def _agent_prompt(corp: CorpId, state_snapshot: dict, insolvency: bool) -> str:
+    insolvency_line = (
+        "\n!! INSOLVENCY ALERT: your cash_reserves < 15. Pick a survival action "
+        "(defensive_pivot or a high-confidence acquire / narrative move). !!\n"
+        if insolvency
         else ""
     )
     return (
-        f"You are {agent.value}. Current tick: {state_snapshot.get('tick', 0)}.\n"
-        f"Leaderboard:\n{_leaderboard_repr(state_snapshot)}\n"
-        f"{panic_line}"
+        f"You are {corp.value}. Current tick: {state_snapshot.get('tick', 0)}.\n"
+        f"Market leaderboard:\n{_leaderboard_repr(state_snapshot)}\n"
+        f"{insolvency_line}"
         "Emit exactly one AgentDecision JSON object describing your next move."
     )
 
 
 def _chaos_prompt(state_snapshot: dict) -> str:
     return (
-        "Invent a fresh engineering disaster. Pick whichever hacker on the "
-        f"current board makes the most dramatic target.\nLeaderboard:\n"
-        f"{_leaderboard_repr(state_snapshot)}\n"
+        "Generate one fresh macroeconomic / regulatory / supply-chain shock. "
+        "Pick whichever corporation on the current board makes the most dramatic "
+        "target (typically the one leading on stock_value or market_share).\n"
+        f"Market leaderboard:\n{_leaderboard_repr(state_snapshot)}\n"
         "Emit exactly one ChaosEvent JSON object."
     )
 
@@ -100,13 +106,14 @@ def _chaos_prompt(state_snapshot: dict) -> str:
 # --- Public API ---------------------------------------------------------- #
 
 async def call_agent(
-    agent: AgentId,
+    corp: CorpId,
     state_snapshot: dict,
-    panic: bool = False,
+    insolvency: bool = False,
+    timeout: Optional[float] = None,
 ) -> AgentDecision:
     client = _get_client()
     if client is None:
-        return _seed_decision(agent)
+        return _seed_decision(corp)
 
     try:
         from google.genai import types  # type: ignore
@@ -114,28 +121,32 @@ async def call_agent(
         response = await asyncio.wait_for(
             client.aio.models.generate_content(
                 model=MODEL,
-                contents=_agent_prompt(agent, state_snapshot, panic),
+                contents=_agent_prompt(corp, state_snapshot, insolvency),
                 config=types.GenerateContentConfig(
-                    system_instruction=load_persona(agent),
+                    system_instruction=load_persona(corp),
                     response_mime_type="application/json",
                     response_schema=AgentDecision,
                     temperature=0.9,
                 ),
             ),
-            timeout=TIMEOUT_S,
+            timeout=timeout if timeout is not None else TIMEOUT_S,
         )
         decision = _parse_decision(response)
-        # Anti-spoof: Gemini occasionally signs decisions as the wrong agent.
-        decision.sender = agent
+        usage.record(corp.value, *usage.extract_usage(response))
+        # Anti-spoof: Gemini occasionally signs decisions as the wrong corp.
+        decision.sender = corp
         return decision
     except (asyncio.TimeoutError, ValidationError) as e:
-        log.warning("call_agent fallback for %s: %s", agent.value, e)
+        log.warning("call_agent fallback for %s: %s", corp.value, e)
     except Exception as e:
-        log.warning("call_agent error for %s: %s", agent.value, e)
-    return _seed_decision(agent)
+        log.warning("call_agent error for %s: %s", corp.value, e)
+    return _seed_decision(corp)
 
 
-async def call_chaos(state_snapshot: Optional[dict] = None) -> ChaosEvent:
+async def call_chaos(
+    state_snapshot: Optional[dict] = None,
+    timeout: Optional[float] = None,
+) -> ChaosEvent:
     client = _get_client()
     if client is None:
         return _seed_chaos()
@@ -154,9 +165,11 @@ async def call_chaos(state_snapshot: Optional[dict] = None) -> ChaosEvent:
                     temperature=1.0,
                 ),
             ),
-            timeout=TIMEOUT_S,
+            timeout=timeout if timeout is not None else TIMEOUT_S,
         )
-        return _parse_chaos(response)
+        event = _parse_chaos(response)
+        usage.record(CorpId.CHAOS.value, *usage.extract_usage(response))
+        return event
     except (asyncio.TimeoutError, ValidationError) as e:
         log.warning("call_chaos fallback: %s", e)
     except Exception as e:
@@ -180,6 +193,13 @@ def _parse_chaos(response) -> ChaosEvent:
     return ChaosEvent.model_validate_json(response.text)
 
 
+# --- Liveness check (used by tick loop fire-and-forget pattern) ---------- #
+
+def is_live() -> bool:
+    """True if a real Gemini client is ready. False = seed-only mode."""
+    return _get_client() is not None
+
+
 # --- Seed fallback (load-bearing — see CLAUDE.md) ------------------------ #
 
 def _load_seed() -> dict:
@@ -187,9 +207,19 @@ def _load_seed() -> dict:
         return json.load(f)
 
 
-def _seed_decision(agent: AgentId) -> AgentDecision:
+def seed_decision(corp: CorpId) -> AgentDecision:
+    """Public alias — the tick loop uses this every tick as the fast path."""
+    return _seed_decision(corp)
+
+
+def seed_chaos() -> ChaosEvent:
+    """Public alias — fallback for when Gemini chaos generation fails."""
+    return _seed_chaos()
+
+
+def _seed_decision(corp: CorpId) -> AgentDecision:
     seed = _load_seed()
-    pool = [d for d in seed["decisions"] if d["sender"] == agent.value] or seed["decisions"]
+    pool = [d for d in seed["decisions"] if d["sender"] == corp.value] or seed["decisions"]
     return AgentDecision.model_validate(random.choice(pool))
 
 
