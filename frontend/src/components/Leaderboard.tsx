@@ -13,9 +13,9 @@ interface LeaderboardProps {
 }
 
 const CORP_META: Record<string, { name: string; role: string; color: string }> = {
-  NexusCorp:   { name: "NexusCorp",   role: "Market Leader · Risk-Averse",    color: "var(--accent-cyan)" },
-  VertexAI:    { name: "VertexAI",    role: "Aggressive Challenger",          color: "var(--accent-green)" },
-  ShadowScale: { name: "ShadowScale", role: "Guerilla · Narrative-Driven",    color: "var(--accent-purple)" },
+  Google:    { name: "Google",    role: "Gemini · Incumbent / Risk-Averse",    color: "var(--accent-cyan)" },
+  OpenAI:    { name: "OpenAI",    role: "GPT · Aggressive Challenger",         color: "var(--accent-green)" },
+  Anthropic: { name: "Anthropic", role: "Claude · Safety / Narrative",         color: "var(--accent-purple)" },
 };
 
 // Cash_reserves < 15 triggers the backend's insolvency loop (see backend/state.py).

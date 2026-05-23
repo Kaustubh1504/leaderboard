@@ -29,8 +29,8 @@ app.add_middleware(
 )
 
 # Lowercase URL slug → canonical CorpId enum. Per CLAUDE.md the public REST
-# contract uses lowercase ("nexuscorp", "vertexai", "shadowscale") while the
-# internal enum / state keys preserve CamelCase ("NexusCorp" etc.).
+# contract uses lowercase ("google", "openai", "anthropic") while the
+# internal enum / state keys preserve the canonical brand casing ("Google" etc.).
 _CORP_BY_SLUG = {c.value.lower(): c for c in CorpId if c is not CorpId.CHAOS}
 
 

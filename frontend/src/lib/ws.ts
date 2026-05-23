@@ -5,7 +5,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 // --- Backend contract mirror (NEXUS-OS) --------------------------------- //
 // Keep in sync with backend/schemas.py StatePayload.
 
-export type CorpId = "NexusCorp" | "VertexAI" | "ShadowScale" | "Chaos_Operator";
+export type CorpId = "Google" | "OpenAI" | "Anthropic" | "Chaos_Operator";
 
 export type Action =
   | "predatory_pricing"
@@ -61,21 +61,23 @@ export interface LogEntry {
   timestamp: string;
   level: "chaos" | "system" | "action";
   message: string;
+  /** Corps mentioned in this event — used by the CorpActivityPane filter. */
+  involvedCorps: CorpId[];
 }
 
 // --- Initial defaults --------------------------------------------------- //
 
-const CORP_ROTATION: CorpId[] = ["NexusCorp", "VertexAI", "ShadowScale"];
+const CORP_ROTATION: CorpId[] = ["Google", "OpenAI", "Anthropic"];
 
 const initialLeaderboard: Leaderboard = {
-  NexusCorp:   { stock_value: 142, cash_reserves: 88, public_sentiment: 71, market_share: 34 },
-  VertexAI:    { stock_value:  96, cash_reserves: 62, public_sentiment: 55, market_share: 28 },
-  ShadowScale: { stock_value:  78, cash_reserves: 41, public_sentiment: 33, market_share: 22 },
+  Google:    { stock_value: 142, cash_reserves: 88, public_sentiment: 71, market_share: 34 },
+  OpenAI:    { stock_value:  96, cash_reserves: 62, public_sentiment: 55, market_share: 28 },
+  Anthropic: { stock_value:  78, cash_reserves: 41, public_sentiment: 33, market_share: 22 },
 };
 
 const initialState: TelemetryState = {
   tick: 0,
-  active_agent: "NexusCorp",
+  active_agent: "Google",
   leaderboard: initialLeaderboard,
   graph_edges: [],
   last_telemetry: {
@@ -118,16 +120,16 @@ interface MockEvent {
 }
 
 const mockEvents: MockEvent[] = [
-  { sender: "VertexAI",    action: "predatory_pricing",   target: "NexusCorp",   reason: "flank_nexus_q4_enterprise_renewals", confidence_score: 0.88, msg: "VertexAI undercuts NexusCorp on enterprise inference pricing.", sentimentImpact: -6, shareImpact: -14 },
-  { sender: "NexusCorp",   action: "defensive_pivot",      target: "NexusCorp",   reason: "protect_q3_guidance",                confidence_score: 0.78, msg: "NexusCorp announces $50M buyback to defend Q3 guidance.",        sentimentImpact:  4, shareImpact:   0 },
-  { sender: "ShadowScale", action: "narrative_campaign",   target: "NexusCorp",   reason: "nexus_offshore_labelers_leak",       confidence_score: 0.77, msg: "ShadowScale leaks story about NexusCorp's offshore data labelers.", sentimentImpact: -12, shareImpact:  0 },
-  { sender: "VertexAI",    action: "rd_investment",        target: "VertexAI",    reason: "step_change_multimodal_model",       confidence_score: 0.91, msg: "VertexAI ships step-change multimodal model release.",          sentimentImpact:  9, shareImpact:   6 },
-  { sender: "Chaos_Operator", action: "CHAOS",             target: "NexusCorp",   reason: "EU AI Act Emergency Amendment",      confidence_score: 1.00, msg: "CHAOS: Brussels publishes emergency AI Act amendment overnight.", sentimentImpact: -20, shareImpact:  -8 },
-  { sender: "NexusCorp",   action: "acquire_competitor",   target: "ShadowScale", reason: "shadow_cash_collapse_window",        confidence_score: 0.74, msg: "NexusCorp floats all-stock offer for ShadowScale.",             sentimentImpact:  0, shareImpact:  18 },
-  { sender: "ShadowScale", action: "espionage",            target: "VertexAI",    reason: "vertex_burn_rate_dossier",           confidence_score: 0.71, msg: "ShadowScale recruits ex-Vertex finance lead for burn-rate dossier.", sentimentImpact: -3, shareImpact:   5 },
-  { sender: "Chaos_Operator", action: "CHAOS",             target: "VertexAI",    reason: "TSMC Fab 22 Goes Offline",           confidence_score: 1.00, msg: "CHAOS: TSMC Fab 22 coolant failure cuts GPU allocation 6 weeks.", sentimentImpact:  0, shareImpact: -22 },
-  { sender: "NexusCorp",   action: "narrative_campaign",   target: "VertexAI",    reason: "highlight_vertex_burn_rate",         confidence_score: 0.76, msg: "NexusCorp briefs analysts on VertexAI's unsustainable burn rate.", sentimentImpact: -8, shareImpact:   0 },
-  { sender: "VertexAI",    action: "predatory_pricing",    target: "ShadowScale", reason: "squeeze_shadow_smb_segment",         confidence_score: 0.82, msg: "VertexAI launches aggressive SMB pricing tier — squeezes ShadowScale.", sentimentImpact: 0, shareImpact:  -9 },
+  { sender: "OpenAI",    action: "predatory_pricing",   target: "Google",   reason: "flank_google_q4_enterprise_renewals", confidence_score: 0.88, msg: "OpenAI undercuts Google on enterprise inference pricing.", sentimentImpact: -6, shareImpact: -14 },
+  { sender: "Google",   action: "defensive_pivot",      target: "Google",   reason: "protect_q3_guidance",                confidence_score: 0.78, msg: "Google announces $50M buyback to defend Q3 guidance.",        sentimentImpact:  4, shareImpact:   0 },
+  { sender: "Anthropic", action: "narrative_campaign",   target: "Google",   reason: "google_offshore_labelers_leak",       confidence_score: 0.77, msg: "Anthropic leaks story about Google's offshore data labelers.", sentimentImpact: -12, shareImpact:  0 },
+  { sender: "OpenAI",    action: "rd_investment",        target: "OpenAI",    reason: "step_change_multimodal_model",       confidence_score: 0.91, msg: "OpenAI ships step-change multimodal model release.",          sentimentImpact:  9, shareImpact:   6 },
+  { sender: "Chaos_Operator", action: "CHAOS",             target: "Google",   reason: "EU AI Act Emergency Amendment",      confidence_score: 1.00, msg: "CHAOS: Brussels publishes emergency AI Act amendment overnight.", sentimentImpact: -20, shareImpact:  -8 },
+  { sender: "Google",   action: "acquire_competitor",   target: "Anthropic", reason: "anthropic_cash_collapse_window",        confidence_score: 0.74, msg: "Google floats all-stock offer for Anthropic.",             sentimentImpact:  0, shareImpact:  18 },
+  { sender: "Anthropic", action: "espionage",            target: "OpenAI",    reason: "openai_burn_rate_dossier",           confidence_score: 0.71, msg: "Anthropic recruits ex-OpenAI finance lead for burn-rate dossier.", sentimentImpact: -3, shareImpact:   5 },
+  { sender: "Chaos_Operator", action: "CHAOS",             target: "OpenAI",    reason: "TSMC Fab 22 Goes Offline",           confidence_score: 1.00, msg: "CHAOS: TSMC Fab 22 coolant failure cuts GPU allocation 6 weeks.", sentimentImpact:  0, shareImpact: -22 },
+  { sender: "Google",   action: "narrative_campaign",   target: "OpenAI",    reason: "highlight_openai_burn_rate",         confidence_score: 0.76, msg: "Google briefs analysts on OpenAI's unsustainable burn rate.", sentimentImpact: -8, shareImpact:   0 },
+  { sender: "OpenAI",    action: "predatory_pricing",    target: "Anthropic", reason: "squeeze_anthropic_smb_segment",         confidence_score: 0.82, msg: "OpenAI launches aggressive SMB pricing tier — squeezes Anthropic.", sentimentImpact: 0, shareImpact:  -9 },
 ];
 
 export function useTelemetry() {
@@ -138,27 +140,43 @@ export function useTelemetry() {
 
   // High-density historical metrics database (used for Recharts Sparkline/chart visualizations)
   const [history, setHistory] = useState<Record<string, LeaderboardEntry[]>>({
-    NexusCorp:   [initialLeaderboard.NexusCorp],
-    VertexAI:    [initialLeaderboard.VertexAI],
-    ShadowScale: [initialLeaderboard.ShadowScale],
+    Google:   [initialLeaderboard.Google],
+    OpenAI:    [initialLeaderboard.OpenAI],
+    Anthropic: [initialLeaderboard.Anthropic],
   });
 
   const wsRef = useRef<WebSocket | null>(null);
   const mockTickerRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Function to push logs securely
-  const addLog = useCallback((level: "chaos" | "system" | "action", message: string) => {
+  // Function to push logs securely.
+  // involvedCorps powers the CorpActivityPane filter — pass [sender, target]
+  // (deduped) when known. System messages can leave it empty.
+  const addLog = useCallback((
+    level: "chaos" | "system" | "action",
+    message: string,
+    involvedCorps: CorpId[] = [],
+  ) => {
     const timestamp = new Date().toLocaleTimeString();
     setLogs((prev) => {
       const updated = [
         ...prev,
-        { id: `${Date.now()}-${Math.random()}`, timestamp, level, message },
+        { id: `${Date.now()}-${Math.random()}`, timestamp, level, message, involvedCorps },
       ];
       // Keep only last 50 logs for unscrollable viewport
       return updated.slice(-50);
     });
   }, []);
+
+  // Helper: dedup the corps involved in a telemetry frame so the
+  // CorpActivityPane can filter by membership.
+  function corpsFromTelemetry(sender: string, target: string): CorpId[] {
+    const ids: CorpId[] = [];
+    const known: CorpId[] = ["Google", "OpenAI", "Anthropic", "Chaos_Operator"];
+    if (known.includes(sender as CorpId)) ids.push(sender as CorpId);
+    if (known.includes(target as CorpId) && target !== sender) ids.push(target as CorpId);
+    return ids;
+  }
 
   // Update history database
   const updateHistory = useCallback((currentLeaderboard: Leaderboard) => {
@@ -234,9 +252,13 @@ export function useTelemetry() {
       // Set raw JSON
       setRawTelemetry(JSON.stringify(nextPayload, null, 2));
 
-      // Append log
+      // Append log — same readable format as the live WS handler.
       const isChaos = mockEvent.sender === "Chaos_Operator";
-      addLog(isChaos ? "chaos" : "action", `[${mockEvent.action}] ${mockEvent.msg}`);
+      addLog(
+        isChaos ? "chaos" : "action",
+        formatTelemetryLog(nextPayload.last_telemetry),
+        corpsFromTelemetry(mockEvent.sender, mockEvent.target),
+      );
 
       // Update historical track
       updateHistory(nextLeaderboard);
@@ -276,18 +298,19 @@ export function useTelemetry() {
             setState(payload);
             setRawTelemetry(JSON.stringify(payload, null, 2));
 
-            // Format log message
+            // Human-readable activity line — same formatter used by chaos
+            // feed + corp activity pane so the verb mapping is consistent.
             const telemetry = payload.last_telemetry;
             if (telemetry) {
               const isChaos = telemetry.sender === "Chaos_Operator" || telemetry.action === "CHAOS";
-              const conf = typeof telemetry.confidence_score === "number"
-                ? ` (conf=${telemetry.confidence_score.toFixed(2)})`
-                : "";
-              const logMsg = `[${telemetry.action}] ${telemetry.sender} -> ${telemetry.target} · ${telemetry.reason}${conf}`;
-              addLog(isChaos ? "chaos" : "action", logMsg);
+              addLog(
+                isChaos ? "chaos" : "action",
+                formatTelemetryLog(telemetry),
+                corpsFromTelemetry(telemetry.sender, telemetry.target),
+              );
             }
 
-            // Backend payload already uses canonical CorpId keys ("NexusCorp" etc.),
+            // Backend payload already uses canonical CorpId keys ("Google" etc.),
             // so the leaderboard goes straight through with no key remapping.
             if (payload.leaderboard) {
               updateHistory(payload.leaderboard);
@@ -327,14 +350,18 @@ export function useTelemetry() {
 
   // Handle manual queries and trigger requests
   const triggerChaos = useCallback(async () => {
-    addLog("system", "Manual override triggered: LAUNCHING CHAOS INJECTION...");
+    addLog("system", "Operator: RANDOM CHAOS injection requested...");
     try {
       const response = await fetch(`${BACKEND_HTTP_URL}/api/chaos/trigger`, {
         method: "POST",
       });
       if (response.ok) {
         const result = await response.json();
-        addLog("chaos", `Chaos response: ${result.name || "Macro shock initialized."}`);
+        addLog(
+          "chaos",
+          `Chaos: ${result.name || "Macro shock initialized."}`,
+          result.target ? [result.target as CorpId] : [],
+        );
       } else {
         throw new Error(`HTTP Error: ${response.status}`);
       }
@@ -362,6 +389,31 @@ export function useTelemetry() {
       }
     }
   }, [addLog, connectionStatus]);
+
+  const triggerCustomChaos = useCallback(async (prompt: string) => {
+    const trimmed = prompt.trim();
+    if (!trimmed) return;
+    addLog("system", `Operator: CUSTOM CHAOS — "${trimmed.slice(0, 80)}${trimmed.length > 80 ? "…" : ""}"`);
+    try {
+      const response = await fetch(`${BACKEND_HTTP_URL}/api/chaos/inject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: trimmed.slice(0, 240) }),
+      });
+      if (response.ok) {
+        const result = await response.json();
+        addLog(
+          "chaos",
+          `Chaos: ${result.name || trimmed.slice(0, 80)}`,
+          result.target ? [result.target as CorpId] : [],
+        );
+      } else {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+    } catch (err) {
+      addLog("chaos", `CHAOS INJECT FAIL: ${trimmed.slice(0, 60)}`);
+    }
+  }, [addLog]);
 
   const queryAgent = useCallback(async (corpId: string) => {
     // Backend expects lowercase slug ("nexuscorp" / "vertexai" / "shadowscale").
@@ -414,6 +466,69 @@ export function useTelemetry() {
     logs,
     rawTelemetry,
     triggerChaos,
+    triggerCustomChaos,
     queryAgent,
   };
+}
+
+// --- Static info-button samples ---------------------------------------- //
+// Hover-tooltip examples for the "Random Chaos" info icon — drawn from
+// the kind of events the Chaos Operator typically emits. Display only.
+export const RANDOM_CHAOS_EXAMPLES = [
+  "EU AI Act Emergency Amendment",
+  "TSMC Fab 22 Goes Offline",
+  "DOJ Antitrust Suit Against Market Leader",
+  "Hyperscaler Flash Outage Cascades",
+];
+
+// --- Human-readable telemetry formatting ------------------------------- //
+// Maps action verbs to natural-language phrases so the activity log + chaos
+// feed read like sentences instead of tag soup. Separate "self" forms when
+// the target is the same as the sender — "Google is doubling down on R&D"
+// reads better than "Google is investing R&D into Google".
+
+const ACTION_PHRASE: Record<string, { vs_other: string; self: string }> = {
+  predatory_pricing: {
+    vs_other: "is cutting prices to squeeze",
+    self: "is defending pricing on",
+  },
+  acquire_competitor: {
+    vs_other: "is moving to acquire",
+    self: "is restructuring",
+  },
+  narrative_campaign: {
+    vs_other: "launches a narrative campaign against",
+    self: "amplifies its own brand narrative",
+  },
+  defensive_pivot: {
+    vs_other: "pivots defensively against pressure from",
+    self: "is pivoting defensively",
+  },
+  rd_investment: {
+    vs_other: "out-invests in R&D against",
+    self: "doubles down on R&D",
+  },
+  espionage: {
+    vs_other: "is conducting espionage against",
+    self: "is hardening its own security",
+  },
+};
+
+/** Turn a telemetry frame into a single human-readable sentence. */
+export function formatTelemetryLog(t: LastTelemetry): string {
+  if (t.action === "CHAOS" || t.sender === "Chaos_Operator") {
+    return `Chaos Operator fires "${t.reason}" — hits ${t.target}.`;
+  }
+  const phrase = ACTION_PHRASE[t.action];
+  const verb = phrase
+    ? t.sender === t.target ? phrase.self : phrase.vs_other
+    : t.action.replace(/_/g, " ");
+  const reasonPart = t.reason ? ` — angle: "${t.reason}"` : "";
+  const confPart = typeof t.confidence_score === "number"
+    ? ` (confidence ${Math.round(t.confidence_score * 100)}%)`
+    : "";
+  if (t.sender === t.target) {
+    return `${t.sender} ${verb}${reasonPart}${confPart}.`;
+  }
+  return `${t.sender} ${verb} ${t.target}${reasonPart}${confPart}.`;
 }

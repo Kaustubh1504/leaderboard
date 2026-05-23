@@ -95,9 +95,9 @@ class TestTickLoop:
             ChaosEvent(
                 name="Test Catastrophe",
                 description="integration-test injection",
-                target=CorpId.SHADOWSCALE,
+                target=CorpId.ANTHROPIC,
                 metric_impact=[
-                    MetricImpact(target=CorpId.SHADOWSCALE, public_sentiment=-20)
+                    MetricImpact(target=CorpId.ANTHROPIC, public_sentiment=-20)
                 ],
             )
         )
@@ -109,7 +109,7 @@ class TestTickLoop:
             if f["last_telemetry"] and f["last_telemetry"]["sender"] == "Chaos_Operator"
         ]
         assert len(chaos_frames) == 1
-        assert chaos_frames[0]["active_agent"] == "ShadowScale"
+        assert chaos_frames[0]["active_agent"] == "Anthropic"
 
     async def test_loop_survives_internal_exceptions(self, monkeypatch):
         """A failing decision path must be logged, not crash the loop.

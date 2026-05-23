@@ -63,7 +63,7 @@ class TestCallChaosWithFraming:
             {"leaderboard": {}},
             user_prompt="Sovereign default in Brazil",
         )
-        assert ev.target in {CorpId.NEXUSCORP, CorpId.VERTEXAI, CorpId.SHADOWSCALE}
+        assert ev.target in {CorpId.GOOGLE, CorpId.OPENAI, CorpId.ANTHROPIC}
         assert len(ev.metric_impact) >= 1, "seed events always carry at least one impact"
 
     async def test_none_user_prompt_uses_seed_event_name_unchanged(self):

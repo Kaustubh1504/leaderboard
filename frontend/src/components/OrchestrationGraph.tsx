@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import ReactFlow, {
   Handle,
   Position,
@@ -10,10 +10,11 @@ import ReactFlow, {
   BackgroundVariant,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { GitBranch } from "lucide-react";
-import { TelemetryState } from "../lib/ws";
+import { GitBranch, Maximize2, Minimize2 } from "lucide-react";
+import { CorpId, LeaderboardEntry, TelemetryState } from "../lib/ws";
+import { CorpOverviewPopover } from "./CorpOverviewPopover";
 
-// Custom node rendering component to bypass default styles
+// Larger custom-node renderer with hover + click hooks.
 const CustomNodeComponent = ({ data, id }: any) => {
   const isChaos = id === "Chaos_Operator";
 
@@ -22,8 +23,12 @@ const CustomNodeComponent = ({ data, id }: any) => {
       className={`custom-node ${isChaos ? "chaos-agent-node" : ""} ${
         data.isActive ? (isChaos ? "active-chaos" : "active-hacker") : ""
       }`}
+      onMouseEnter={(e) => data.onHover?.(id, e.currentTarget.getBoundingClientRect())}
+      onMouseLeave={() => data.onHoverEnd?.(id)}
+      onClick={() => !isChaos && data.onClick?.(id)}
+      role={isChaos ? undefined : "button"}
+      tabIndex={isChaos ? undefined : 0}
     >
-      {/* Top handle (corps only) */}
       {!isChaos && (
         <Handle
           type="target"
@@ -31,11 +36,8 @@ const CustomNodeComponent = ({ data, id }: any) => {
           style={{ background: "var(--accent-cyan)", width: 6, height: 6, border: "none" }}
         />
       )}
-
-      <div className="node-name" style={{ fontWeight: "700" }}>{data.label}</div>
+      <div className="node-name">{data.label}</div>
       <div className="node-role">{data.role}</div>
-
-      {/* Bottom handle */}
       <Handle
         type="source"
         position={Position.Bottom}
@@ -45,67 +47,66 @@ const CustomNodeComponent = ({ data, id }: any) => {
   );
 };
 
-const nodeTypes = {
-  custom: CustomNodeComponent,
-};
+const nodeTypes = { custom: CustomNodeComponent };
 
 interface OrchestrationGraphProps {
   state: TelemetryState;
+  maximized: boolean;
+  onToggleMaximize: () => void;
+  /** Called when the user clicks a corp node — opens the activity pane. */
+  onSelectCorp: (corp: CorpId) => void;
 }
 
-// Layout: Chaos Operator at center, 3 corps arranged around it (per CLAUDE.md).
+// 4 nodes: Chaos in the centre, 3 corps around it. Slightly larger
+// positions than before to give the bigger nodes breathing room.
 const STATIC_NODES: Node[] = [
-  {
-    id: "Chaos_Operator",
-    type: "custom",
-    position: { x: 230, y: 170 },
-    data: { label: "Chaos_Operator", role: "Macro Shock Generator", isActive: false },
-  },
-  {
-    id: "NexusCorp",
-    type: "custom",
-    position: { x: 30, y: 30 },
-    data: { label: "NexusCorp", role: "Market Leader", isActive: false },
-  },
-  {
-    id: "VertexAI",
-    type: "custom",
-    position: { x: 430, y: 30 },
-    data: { label: "VertexAI", role: "Aggressive Challenger", isActive: false },
-  },
-  {
-    id: "ShadowScale",
-    type: "custom",
-    position: { x: 230, y: 320 },
-    data: { label: "ShadowScale", role: "Guerilla Disruptor", isActive: false },
-  },
+  { id: "Chaos_Operator", type: "custom", position: { x: 250, y: 180 }, data: { label: "Chaos_Operator", role: "Macro Shock Generator", isActive: false } },
+  { id: "Google",     type: "custom", position: { x: 30,  y: 30  }, data: { label: "Google",     role: "Market Leader",          isActive: false } },
+  { id: "OpenAI",      type: "custom", position: { x: 470, y: 30  }, data: { label: "OpenAI",      role: "Aggressive Challenger",  isActive: false } },
+  { id: "Anthropic",   type: "custom", position: { x: 250, y: 360 }, data: { label: "Anthropic",   role: "Guerilla Disruptor",     isActive: false } },
 ];
 
 const STATIC_EDGES: Edge[] = [
-  // Chaos -> each corp (the macro shock channels).
-  { id: "e-chaos-nexus",  source: "Chaos_Operator", target: "NexusCorp",   animated: false },
-  { id: "e-chaos-vertex", source: "Chaos_Operator", target: "VertexAI",    animated: false },
-  { id: "e-chaos-shadow", source: "Chaos_Operator", target: "ShadowScale", animated: false },
-  // Corp-to-corp competitive flow (triangle).
-  { id: "e-nexus-vertex",  source: "NexusCorp",   target: "VertexAI",    animated: false },
-  { id: "e-vertex-shadow", source: "VertexAI",    target: "ShadowScale", animated: false },
-  { id: "e-shadow-nexus",  source: "ShadowScale", target: "NexusCorp",   animated: false },
+  { id: "e-chaos-google",   source: "Chaos_Operator", target: "Google",   animated: false },
+  { id: "e-chaos-openai",  source: "Chaos_Operator", target: "OpenAI",    animated: false },
+  { id: "e-chaos-anthropic",  source: "Chaos_Operator", target: "Anthropic", animated: false },
+  { id: "e-google-openai",  source: "Google",      target: "OpenAI",    animated: false },
+  { id: "e-openai-anthropic", source: "OpenAI",       target: "Anthropic", animated: false },
+  { id: "e-anthropic-google",  source: "Anthropic",    target: "Google",   animated: false },
 ];
 
-export const OrchestrationGraph: React.FC<OrchestrationGraphProps> = ({ state }) => {
+const CORPS: CorpId[] = ["Google", "OpenAI", "Anthropic"];
+
+export const OrchestrationGraph: React.FC<OrchestrationGraphProps> = ({
+  state,
+  maximized,
+  onToggleMaximize,
+  onSelectCorp,
+}) => {
   const [mounted, setMounted] = useState(false);
+  const [hovered, setHovered] = useState<{ id: CorpId; anchor: { x: number; y: number } } | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
-  // Compute active nodes and edges dynamically based on state
+  // Hover callbacks live on data so they aren't recreated by the
+  // CustomNodeComponent (which is re-instantiated by ReactFlow per render).
+  const handleHover = (id: string, rect: DOMRect) => {
+    if (!CORPS.includes(id as CorpId)) return;
+    // Anchor relative to viewport — popover uses fixed positioning.
+    setHovered({ id: id as CorpId, anchor: { x: rect.right + 12, y: rect.top + rect.height / 2 } });
+  };
+  const handleHoverEnd = (id: string) => {
+    setHovered((prev) => (prev && prev.id === id ? null : prev));
+  };
+  const handleClick = (id: string) => {
+    if (CORPS.includes(id as CorpId)) onSelectCorp(id as CorpId);
+  };
+
   const nodes = useMemo(() => {
     return STATIC_NODES.map((node) => {
       let isActive = false;
-
       if (node.id === "Chaos_Operator") {
-        // Chaos is active if last sender is the Operator or active_agent is Chaos.
         isActive =
           state.active_agent === "Chaos_Operator" ||
           state.last_telemetry?.sender === "Chaos_Operator" ||
@@ -113,51 +114,41 @@ export const OrchestrationGraph: React.FC<OrchestrationGraphProps> = ({ state })
       } else {
         isActive = state.active_agent === node.id;
       }
-
       return {
         ...node,
         data: {
           ...node.data,
           isActive,
+          onHover: handleHover,
+          onHoverEnd: handleHoverEnd,
+          onClick: handleClick,
         },
       };
     });
-  }, [state.active_agent, state.last_telemetry]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.active_agent, state.last_telemetry, onSelectCorp]);
 
   const edges = useMemo(() => {
     return STATIC_EDGES.map((edge) => {
       let isAnimated = false;
       let className = "";
-
-      // Backend payload explicitly marks the active edge as animated.
       const payloadAnimate = state.graph_edges?.some(
         (ge) => ge.source === edge.source && ge.target === edge.target && ge.animated
       );
-
-      // Heuristic: animate if last telemetry sender/target match this edge.
       const stateMatch =
         state.last_telemetry?.sender === edge.source &&
         state.last_telemetry?.target === edge.target;
-
-      // Animate the chaos channel landing on whoever the chaos is hitting.
       const chaosLinkMatch =
         edge.source === "Chaos_Operator" && edge.target === state.active_agent;
-
-      if (payloadAnimate || stateMatch || chaosLinkMatch) {
-        isAnimated = true;
-      }
-
-      if (edge.source === "Chaos_Operator" && isAnimated) {
-        className = "chaos-active";
-      }
-
-      return {
-        ...edge,
-        animated: isAnimated,
-        className,
-      };
+      if (payloadAnimate || stateMatch || chaosLinkMatch) isAnimated = true;
+      if (edge.source === "Chaos_Operator" && isAnimated) className = "chaos-active";
+      return { ...edge, animated: isAnimated, className };
     });
   }, [state.graph_edges, state.last_telemetry, state.active_agent]);
+
+  const hoveredStats: LeaderboardEntry | undefined = hovered
+    ? state.leaderboard[hovered.id]
+    : undefined;
 
   if (!mounted) {
     return (
@@ -173,13 +164,23 @@ export const OrchestrationGraph: React.FC<OrchestrationGraphProps> = ({ state })
     );
   }
 
+  const MaxIcon = maximized ? Minimize2 : Maximize2;
+
   return (
-    <div className="panel-card" style={{ flex: 1 }}>
+    <div className="panel-card" style={{ flex: 1 }} ref={wrapperRef}>
       <div className="panel-header">
         <div className="panel-title">
           <GitBranch size={14} style={{ color: "var(--accent-cyan)" }} />
           ORCHESTRATION EDGE GRAPH
         </div>
+        <button
+          className="graph-maximize-btn"
+          onClick={onToggleMaximize}
+          title={maximized ? "Restore default layout" : "Maximize graph"}
+          aria-label={maximized ? "Restore default layout" : "Maximize graph"}
+        >
+          <MaxIcon size={14} />
+        </button>
       </div>
       <div className="panel-content" style={{ minHeight: "350px" }}>
         <div className="flow-wrapper">
@@ -188,7 +189,7 @@ export const OrchestrationGraph: React.FC<OrchestrationGraphProps> = ({ state })
             edges={edges}
             nodeTypes={nodeTypes}
             fitView
-            fitViewOptions={{ padding: 0.15 }}
+            fitViewOptions={{ padding: 0.18 }}
             nodesDraggable={false}
             nodesConnectable={false}
             elementsSelectable={false}
@@ -206,6 +207,14 @@ export const OrchestrationGraph: React.FC<OrchestrationGraphProps> = ({ state })
             />
           </ReactFlow>
         </div>
+        {hovered && (
+          <CorpOverviewPopover
+            corp={hovered.id}
+            stats={hoveredStats}
+            lastTelemetry={state.last_telemetry}
+            anchor={hovered.anchor}
+          />
+        )}
       </div>
     </div>
   );
