@@ -1,0 +1,297 @@
+{
+  "decisions": [
+    {
+      "sender": "Hacker_1",
+      "intent": "OPTIMIZE_CODE",
+      "target": "Hacker_1",
+      "reasoning": "Memoized the leaderboard component to stop re-rendering on every tick.",
+      "patch_size_kb": 18,
+      "metric_impact": [
+        {"target": "Hacker_1", "velocity": 6, "efficiency": 8, "stability": 3, "stress": -2}
+      ]
+    },
+    {
+      "sender": "Hacker_1",
+      "intent": "SUPPORT_TEAMMATE",
+      "target": "Hacker_3",
+      "reasoning": "Wired up the new graph_edges field on the dashboard so Hacker_3 can ship the broadcast change.",
+      "patch_size_kb": 42,
+      "metric_impact": [
+        {"target": "Hacker_3", "velocity": 8, "efficiency": 4, "stability": 5, "stress": -4},
+        {"target": "Hacker_1", "velocity": -2, "efficiency": 0, "stability": 0, "stress": 3}
+      ]
+    },
+    {
+      "sender": "Hacker_1",
+      "intent": "REDUCE_SCOPE",
+      "target": "Hacker_1",
+      "reasoning": "Dropped the animated tooltip layer — too flickery for the live demo.",
+      "patch_size_kb": 9,
+      "metric_impact": [
+        {"target": "Hacker_1", "velocity": 4, "efficiency": 6, "stability": 10, "stress": -8}
+      ]
+    },
+    {
+      "sender": "Hacker_1",
+      "intent": "OPTIMIZE_CODE",
+      "target": "Hacker_1",
+      "reasoning": "Switched recharts ResponsiveContainer to a fixed height to kill layout thrash.",
+      "patch_size_kb": 6,
+      "metric_impact": [
+        {"target": "Hacker_1", "velocity": 5, "efficiency": 7, "stability": 4, "stress": -3}
+      ]
+    },
+    {
+      "sender": "Hacker_1",
+      "intent": "SUPPORT_TEAMMATE",
+      "target": "Hacker_2",
+      "reasoning": "Mocked the AgentDecision shape end-to-end so Hacker_2 can validate Gemini output offline.",
+      "patch_size_kb": 24,
+      "metric_impact": [
+        {"target": "Hacker_2", "velocity": 7, "efficiency": 5, "stability": 4, "stress": -5}
+      ]
+    },
+    {
+      "sender": "Hacker_2",
+      "intent": "OPTIMIZE_CODE",
+      "target": "Hacker_2",
+      "reasoning": "Cached the Gemini client and pre-bound the structured output config.",
+      "patch_size_kb": 14,
+      "metric_impact": [
+        {"target": "Hacker_2", "velocity": 6, "efficiency": 9, "stability": 3, "stress": -2}
+      ]
+    },
+    {
+      "sender": "Hacker_2",
+      "intent": "REDUCE_SCOPE",
+      "target": "Hacker_2",
+      "reasoning": "Cut the experimental tool-use path; sticking to structured output for demo stability.",
+      "patch_size_kb": 22,
+      "metric_impact": [
+        {"target": "Hacker_2", "velocity": 3, "efficiency": 5, "stability": 12, "stress": -7}
+      ]
+    },
+    {
+      "sender": "Hacker_2",
+      "intent": "SUPPORT_TEAMMATE",
+      "target": "Hacker_4",
+      "reasoning": "Tightened the persona prompt loader so Hacker_4's edits hot-reload without a restart.",
+      "patch_size_kb": 11,
+      "metric_impact": [
+        {"target": "Hacker_4", "velocity": 8, "efficiency": 4, "stability": 5, "stress": -4}
+      ]
+    },
+    {
+      "sender": "Hacker_2",
+      "intent": "OPTIMIZE_CODE",
+      "target": "Hacker_2",
+      "reasoning": "Added a 1.2s timeout on Gemini calls so a slow response can't stall the tick loop.",
+      "patch_size_kb": 8,
+      "metric_impact": [
+        {"target": "Hacker_2", "velocity": 4, "efficiency": 6, "stability": 9, "stress": -5}
+      ]
+    },
+    {
+      "sender": "Hacker_2",
+      "intent": "SUPPORT_TEAMMATE",
+      "target": "Hacker_3",
+      "reasoning": "Returned a clean fallback decision when Gemini errors so Hacker_3's loop never sees None.",
+      "patch_size_kb": 16,
+      "metric_impact": [
+        {"target": "Hacker_3", "velocity": 5, "efficiency": 7, "stability": 6, "stress": -3}
+      ]
+    },
+    {
+      "sender": "Hacker_3",
+      "intent": "OPTIMIZE_CODE",
+      "target": "Hacker_3",
+      "reasoning": "Replaced per-client send awaits with a gather() — broadcast latency down 60%.",
+      "patch_size_kb": 19,
+      "metric_impact": [
+        {"target": "Hacker_3", "velocity": 8, "efficiency": 10, "stability": 4, "stress": -3}
+      ]
+    },
+    {
+      "sender": "Hacker_3",
+      "intent": "OPTIMIZE_CODE",
+      "target": "Hacker_3",
+      "reasoning": "Clamp utility hoisted out of the hot loop. Saves a few hundred allocations per tick.",
+      "patch_size_kb": 4,
+      "metric_impact": [
+        {"target": "Hacker_3", "velocity": 4, "efficiency": 5, "stability": 3, "stress": -1}
+      ]
+    },
+    {
+      "sender": "Hacker_3",
+      "intent": "REDUCE_SCOPE",
+      "target": "Hacker_3",
+      "reasoning": "Killed the persistence layer — in-memory only for the demo, exactly as the spec says.",
+      "patch_size_kb": 33,
+      "metric_impact": [
+        {"target": "Hacker_3", "velocity": 6, "efficiency": 8, "stability": 11, "stress": -9}
+      ]
+    },
+    {
+      "sender": "Hacker_3",
+      "intent": "SUPPORT_TEAMMATE",
+      "target": "Hacker_1",
+      "reasoning": "Pinned the WebSocket payload shape and shipped a /api/state endpoint for cold loads.",
+      "patch_size_kb": 21,
+      "metric_impact": [
+        {"target": "Hacker_1", "velocity": 7, "efficiency": 5, "stability": 6, "stress": -4}
+      ]
+    },
+    {
+      "sender": "Hacker_3",
+      "intent": "OPTIMIZE_CODE",
+      "target": "Hacker_3",
+      "reasoning": "Added silent drop-on-disconnect for the WS pool. No more stack traces on tab close.",
+      "patch_size_kb": 7,
+      "metric_impact": [
+        {"target": "Hacker_3", "velocity": 3, "efficiency": 6, "stability": 8, "stress": -4}
+      ]
+    },
+    {
+      "sender": "Hacker_4",
+      "intent": "OPTIMIZE_CODE",
+      "target": "Hacker_4",
+      "reasoning": "Rewrote the chaos prompt — events now read like incident reports, not bug tickets.",
+      "patch_size_kb": 5,
+      "metric_impact": [
+        {"target": "Hacker_4", "velocity": 5, "efficiency": 8, "stability": 4, "stress": -2}
+      ]
+    },
+    {
+      "sender": "Hacker_4",
+      "intent": "SUPPORT_TEAMMATE",
+      "target": "Hacker_2",
+      "reasoning": "Locked all persona output schemas to AgentDecision — Hacker_2's validator stops choking.",
+      "patch_size_kb": 12,
+      "metric_impact": [
+        {"target": "Hacker_2", "velocity": 4, "efficiency": 8, "stability": 7, "stress": -5}
+      ]
+    },
+    {
+      "sender": "Hacker_4",
+      "intent": "OPTIMIZE_CODE",
+      "target": "Hacker_4",
+      "reasoning": "Doubled the seed.json fallback pool. The stage safety net is now twice as deep.",
+      "patch_size_kb": 28,
+      "metric_impact": [
+        {"target": "Hacker_4", "velocity": 6, "efficiency": 5, "stability": 12, "stress": -6}
+      ]
+    },
+    {
+      "sender": "Hacker_4",
+      "intent": "REDUCE_SCOPE",
+      "target": "Hacker_4",
+      "reasoning": "Cut the 'helpful collaborator' persona — too bland on stage. Keeping the four sharp ones.",
+      "patch_size_kb": 15,
+      "metric_impact": [
+        {"target": "Hacker_4", "velocity": 3, "efficiency": 6, "stability": 8, "stress": -4}
+      ]
+    },
+    {
+      "sender": "Hacker_4",
+      "intent": "SUPPORT_TEAMMATE",
+      "target": "Hacker_1",
+      "reasoning": "Wrote demo-ready commentary strings so Hacker_1's telemetry pane reads dramatically.",
+      "patch_size_kb": 9,
+      "metric_impact": [
+        {"target": "Hacker_1", "velocity": 4, "efficiency": 3, "stability": 6, "stress": -3}
+      ]
+    }
+  ],
+  "chaos_events": [
+    {
+      "name": "Production Outage",
+      "description": "us-east-1 just went dark mid-demo. Every dashboard is a tombstone.",
+      "target": "Hacker_3",
+      "metric_impact": [
+        {"target": "Hacker_3", "velocity": -20, "efficiency": -25, "stability": -35, "stress": 30},
+        {"target": "Hacker_1", "velocity": 5, "efficiency": 0, "stability": -8, "stress": 12}
+      ]
+    },
+    {
+      "name": "API Key Leaked",
+      "description": "Hacker_2's Gemini key just landed on a public gist. Quota is on fire.",
+      "target": "Hacker_2",
+      "metric_impact": [
+        {"target": "Hacker_2", "velocity": -18, "efficiency": -30, "stability": -28, "stress": 35},
+        {"target": "Hacker_4", "velocity": 6, "efficiency": 0, "stability": -5, "stress": 10}
+      ]
+    },
+    {
+      "name": "Dependency Hell",
+      "description": "A transitive npm bump just broke React Flow. The graph won't mount.",
+      "target": "Hacker_1",
+      "metric_impact": [
+        {"target": "Hacker_1", "velocity": -22, "efficiency": -20, "stability": -30, "stress": 28},
+        {"target": "Hacker_3", "velocity": 5, "efficiency": 0, "stability": -4, "stress": 9}
+      ]
+    },
+    {
+      "name": "Schema Drift",
+      "description": "Gemini started returning enum values nobody added. The validator is rejecting every call.",
+      "target": "Hacker_4",
+      "metric_impact": [
+        {"target": "Hacker_4", "velocity": -15, "efficiency": -25, "stability": -32, "stress": 30},
+        {"target": "Hacker_2", "velocity": 7, "efficiency": 0, "stability": -6, "stress": 11}
+      ]
+    },
+    {
+      "name": "Tick Loop Stall",
+      "description": "A blocking call snuck into the tick loop. 14 seconds since the last broadcast.",
+      "target": "Hacker_3",
+      "metric_impact": [
+        {"target": "Hacker_3", "velocity": -25, "efficiency": -28, "stability": -38, "stress": 35},
+        {"target": "Hacker_1", "velocity": 8, "efficiency": 0, "stability": -5, "stress": 10}
+      ]
+    },
+    {
+      "name": "WebSocket Storm",
+      "description": "A debug script is reconnecting 200 times a second. The pool is melting.",
+      "target": "Hacker_3",
+      "metric_impact": [
+        {"target": "Hacker_3", "velocity": -18, "efficiency": -22, "stability": -28, "stress": 26},
+        {"target": "Hacker_2", "velocity": 6, "efficiency": 0, "stability": -3, "stress": 8}
+      ]
+    },
+    {
+      "name": "Stage Wi-Fi Drops",
+      "description": "The venue Wi-Fi just rolled over. Five minutes to keynote.",
+      "target": "Hacker_2",
+      "metric_impact": [
+        {"target": "Hacker_2", "velocity": -20, "efficiency": -30, "stability": -25, "stress": 33},
+        {"target": "Hacker_4", "velocity": 9, "efficiency": 4, "stability": 0, "stress": 7}
+      ]
+    },
+    {
+      "name": "Browser Tab Crashed",
+      "description": "The demo laptop's Chrome tab OOM'd. Live state is gone.",
+      "target": "Hacker_1",
+      "metric_impact": [
+        {"target": "Hacker_1", "velocity": -16, "efficiency": -18, "stability": -30, "stress": 25},
+        {"target": "Hacker_3", "velocity": 7, "efficiency": 0, "stability": -4, "stress": 9}
+      ]
+    },
+    {
+      "name": "Persona Rewrite Drift",
+      "description": "Last-minute prompt edits made every agent talk in the same monotone.",
+      "target": "Hacker_4",
+      "metric_impact": [
+        {"target": "Hacker_4", "velocity": -15, "efficiency": -22, "stability": -25, "stress": 24},
+        {"target": "Hacker_2", "velocity": 5, "efficiency": 0, "stability": -3, "stress": 8}
+      ]
+    },
+    {
+      "name": "CORS Wall",
+      "description": "A middleware change blocked the frontend from talking to the backend at all.",
+      "target": "Hacker_3",
+      "metric_impact": [
+        {"target": "Hacker_3", "velocity": -18, "efficiency": -25, "stability": -28, "stress": 28},
+        {"target": "Hacker_1", "velocity": 8, "efficiency": 0, "stability": -6, "stress": 12}
+      ]
+    }
+  ]
+}
