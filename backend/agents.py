@@ -92,8 +92,15 @@ def _agent_prompt(corp: CorpId, state_snapshot: dict, insolvency: bool) -> str:
     )
 
 
-def _chaos_prompt(state_snapshot: dict) -> str:
+def _chaos_prompt(state_snapshot: dict, user_prompt: Optional[str] = None) -> str:
+    framing = (
+        "The Operator has injected a custom shock framing — your generated "
+        f"ChaosEvent must match this framing:\n  >>> {user_prompt.strip()} <<<\n"
+        if user_prompt
+        else ""
+    )
     return (
+        f"{framing}"
         "Generate one fresh macroeconomic / regulatory / supply-chain shock. "
         "Pick whichever corporation on the current board makes the most dramatic "
         "target (typically the one leading on stock_value or market_share).\n"
@@ -143,11 +150,20 @@ async def call_agent(
 
 async def call_chaos(
     state_snapshot: Optional[dict] = None,
+    user_prompt: Optional[str] = None,
     timeout: Optional[float] = None,
 ) -> ChaosEvent:
+    """Generate a chaos event.
+
+    user_prompt (≤ 240 chars) lets the Operator steer the framing — Gemini
+    still binds output to the ChaosEvent schema, so the prompt can change
+    *what kind of disaster* fires but never the shape. When Gemini isn't
+    available, the seed fallback uses user_prompt as the event name so the
+    demo still surfaces the Operator's framing.
+    """
     client = _get_client()
     if client is None:
-        return _seed_chaos()
+        return _seed_chaos_with_framing(user_prompt)
 
     try:
         from google.genai import types  # type: ignore
@@ -155,7 +171,7 @@ async def call_chaos(
         response = await asyncio.wait_for(
             client.aio.models.generate_content(
                 model=MODEL,
-                contents=_chaos_prompt(state_snapshot or {}),
+                contents=_chaos_prompt(state_snapshot or {}, user_prompt=user_prompt),
                 config=types.GenerateContentConfig(
                     system_instruction=load_chaos_persona(),
                     response_mime_type="application/json",
@@ -170,7 +186,17 @@ async def call_chaos(
         log.warning("call_chaos fallback: %s", e)
     except Exception as e:
         log.warning("call_chaos error: %s", e)
-    return _seed_chaos()
+    return _seed_chaos_with_framing(user_prompt)
+
+
+def _seed_chaos_with_framing(user_prompt: Optional[str]) -> ChaosEvent:
+    """Pull a seed chaos event; if the Operator provided a framing, use it
+    as the event name so the dashboard still reflects their intent."""
+    event = _seed_chaos()
+    if user_prompt:
+        # ChaosEvent.name caps at 120; truncate defensively.
+        event.name = user_prompt.strip()[:120]
+    return event
 
 
 # --- Response parsing ---------------------------------------------------- #
