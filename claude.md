@@ -4,7 +4,7 @@ Guidance for Claude Code when working in this repository.
 
 ## Project Overview
 
-**AI War Room** — a real-time multi-agent simulation built for a hackathon. Four "hacker" LLM agents collaborate on engineering tasks under pressure while a fifth Chaos Agent injects engineering disasters. State is broadcast live to a dark-mode dashboard.
+**NEXUS-OS** — an autonomous multi-agent market simulation built for the Google I/O Hackathon 2026. Three AI corporations (`NexusCorp`, `VertexAI`, `ShadowScale`) compete in a live market: trading, sabotaging, forming alliances, and reacting to macroeconomic shocks. Each corporation runs a Strategy Executive Agent that dynamically provisions sub-agents (Marketing, R&D, Competitive Intelligence). A separate Chaos Operator injects regulatory and supply-chain disasters. State is broadcast live to a dark-mode War Room dashboard.
 
 The system is a hackathon demo, not a production product. Optimize for: visual impact, demo reliability, and live-stage robustness. The seed-data fallback is load-bearing — never remove it.
 
@@ -25,11 +25,11 @@ Four roles, one repo:
 ```
 
 **Tick loop (every 3 seconds):**
-1. Hacker 3's async loop picks the next active hacker agent and pulls the current state matrix.
+1. Hacker 3's async loop picks the next corporation to act and pulls the current market state matrix.
 2. Hacker 2 sends the matrix + Hacker 4's system instructions to Gemini, gets a structured JSON decision back.
-3. Hacker 3 applies the decision's `metric_impact` to the leaderboard, clamps values to `[0, 100]`, and broadcasts the new state via WebSocket.
+3. Hacker 3 applies the decision's `metric_impact` to the leaderboard, clamps values to `[0, 100]` (or appropriate bounds), and broadcasts the new state via WebSocket.
 4. Hacker 1's frontend animates the affected node, updates charts, and streams the raw JSON.
-5. A judge clicking **Launch Chaos Injection** jumps a chaos event to the front of the queue.
+5. A judge clicking **Inject Regulatory Shock** (or any chaos button) jumps a chaos event to the front of the queue.
 
 ## Repo Layout
 
@@ -40,14 +40,14 @@ Four roles, one repo:
   /lib/ws.ts       # WebSocket client + state listener
 /backend           # FastAPI server (Hackers 2 + 3)
   main.py          # FastAPI app entrypoint
-  agents.py        # Gemini agent instantiation
+  agents.py        # Gemini agent instantiation (3 corp executives + Chaos Operator)
   state.py         # in-memory state store
   tick.py          # 3-second async game loop
   ws.py            # /ws/telemetry WebSocket route
   schemas.py       # Pydantic models
 /prompts           # Hacker 4
-  hackers/         # one .md per hacker persona
-  chaos_agent.md
+  corps/           # one .md per corporation persona (NexusCorp, VertexAI, ShadowScale)
+  chaos_operator.md
 /data
   seed.json        # 20 fallback events — DO NOT REMOVE
 ```
@@ -63,8 +63,8 @@ These are stable. Frontend and backend agreed on them up front so each side can 
 
 ### REST
 
-- `POST /api/chaos/trigger` — fires the Chaos Agent, returns a catastrophe payload, mutates global state.
-- `POST /api/agent/{agent_id}/query` — forces the named agent to evaluate state and emit a decision payload immediately (out-of-band from the tick loop).
+- `POST /api/chaos/trigger` — fires the Chaos Operator, returns a catastrophe payload (e.g. regulatory shock, supply chain collapse, flash crash), mutates global state.
+- `POST /api/agent/{corp_id}/query` — forces the named corporation to evaluate state and emit a strategic decision payload immediately (out-of-band from the tick loop). `corp_id` is one of `nexuscorp`, `vertexai`, `shadowscale`.
 
 ### WebSocket
 
@@ -75,40 +75,49 @@ These are stable. Frontend and backend agreed on them up front so each side can 
 ```json
 {
   "tick": 14,
-  "active_agent": "Agent_Hacker_2",
+  "active_agent": "VertexAI",
   "leaderboard": {
-    "Hacker_1": {"velocity": 85, "efficiency": 92, "stability": 88, "stress": 12},
-    "Hacker_2": {"velocity": 40, "efficiency": 75, "stability": 60, "stress": 65}
+    "NexusCorp":   {"stock_value": 142, "cash_reserves": 88, "public_sentiment": 71, "market_share": 34},
+    "VertexAI":    {"stock_value":  96, "cash_reserves": 62, "public_sentiment": 55, "market_share": 28},
+    "ShadowScale": {"stock_value":  78, "cash_reserves": 41, "public_sentiment": 33, "market_share": 22}
   },
   "graph_edges": [
-    {"source": "Chaos_Agent", "target": "Agent_Hacker_2", "animated": true}
+    {"source": "VertexAI", "target": "NexusCorp", "animated": true}
   ],
   "last_telemetry": {
-    "sender": "Agent_Hacker_2",
-    "intent": "REFACTOR_BACKEND_PAYLOAD",
-    "target": "Agent_Hacker_3",
-    "patch_size_kb": 124
+    "sender": "VertexAI",
+    "action": "predatory_pricing",
+    "target": "NexusCorp",
+    "reason": "hardware_supply_chain_collapse_detected",
+    "confidence_score": 0.94,
+    "parameters": {"margin_reduction": 0.15, "duration_ticks": 4}
   }
 }
 ```
 
-All four metrics (`velocity`, `efficiency`, `stability`, `stress`) are integers clamped to `[0, 100]`.
+Metric bounds:
+- `stock_value`, `cash_reserves`, `market_share`: integers `[0, 200]` (stock can spike past 100)
+- `public_sentiment`: integer `[0, 100]`
+
+If you change a bound, update both `schemas.py` and the frontend chart axes.
 
 ## Agent Behavior Rules
 
 - Every agent output **must** conform to the Pydantic schema in `backend/schemas.py`. Gemini calls use structured-output config — never accept freeform text.
-- Valid intents: `OPTIMIZE_CODE`, `REDUCE_SCOPE`, `SUPPORT_TEAMMATE`. Add new ones in `schemas.py` first, then update prompts.
-- If any agent's `stability < 20`, the tick loop injects an emergency "panic" context on the next call to force a recovery action. This is intentional — don't suppress it.
-- The four hacker agents have distinct personas (UI, Backend, Stream, Prompt). Persona prompts live in `/prompts/hackers/` and should stay consistent in tone/role across edits.
+- Valid actions: `predatory_pricing`, `acquire_competitor`, `narrative_campaign`, `defensive_pivot`, `rd_investment`, `espionage`. Add new ones in `schemas.py` first, then update prompts.
+- If any corporation's `cash_reserves < 15`, the tick loop injects an emergency "insolvency" context on the next call to force a survival action. This is intentional — don't suppress it.
+- The three corporations have distinct personas (NexusCorp = market leader / risk-averse, VertexAI = aggressive challenger, ShadowScale = guerilla / narrative-driven). Persona prompts live in `/prompts/corps/` and should stay consistent in tone/role across edits.
+- The Chaos Operator is **not** a competitor — it does not have leaderboard metrics. It only emits macroeconomic events that affect all three corporations.
 
 ## Frontend Conventions
 
 - **Single screen, unscrollable.** Three columns + a header. If a feature doesn't fit, redesign — don't add scroll.
-- Dark mode only. High-density layout.
-- React Flow graph is **static layout** (5 nodes, fixed positions) — only edge animation and node border colors change on state updates.
-- Active agent → node border switches to neon green/blue, connecting edge gets `animated: true`.
-- Chaos event → central node glows red.
-- Telemetry stream auto-scrolls to bottom on every new message.
+- Dark mode only. High-density War Room layout.
+- React Flow graph is **static layout** — 1 central Chaos Operator node + 3 corporation nodes around it. Only edge animation and node border colors change on state updates.
+- Active corporation → node border switches to neon green/blue, connecting edge gets `animated: true`.
+- Chaos event → central node glows red, all three corp nodes briefly pulse red.
+- Telemetry stream (right column) auto-scrolls to bottom on every new message.
+- Market charts (left column): one Recharts line per corp tracking `stock_value` over ticks. Add `public_sentiment` as a secondary series if time allows.
 - Build against the mock state schema above before the backend is wired up.
 
 ## Backend Conventions
@@ -120,17 +129,27 @@ All four metrics (`velocity`, `efficiency`, `stability`, `stress`) are integers 
 
 ## Seed Data Fallback
 
-`/data/seed.json` contains 20 pre-written realistic agent decisions and chaos events. This is the **stage safety net** — if Gemini rate-limits or the network drops mid-demo, the system pulls from here. Treat it as production-critical for the demo.
+`/data/seed.json` contains 20 pre-written realistic corporate decisions and chaos events. This is the **stage safety net** — if Gemini rate-limits or the network drops mid-demo, the system pulls from here. Treat it as production-critical for the demo.
 
 When editing seed events, keep them schema-compliant — they're injected through the same code path as live Gemini outputs.
+
+## Demo Run-Loop (3 minutes)
+
+The live demo is scripted to a tight timeline. The backend tick loop should support an optional "demo mode" that aligns chaos injections to these beats:
+
+- **0:00 – 0:45** — Baseline. Three corps spin up, execute standard trades, telemetry streams cleanly.
+- **0:45 – 1:15** — Operator presses the big red button. Regulatory shock fires. Left column flashes red.
+- **1:15 – 2:30** — Agentic panic. Corps spin up sub-agents, attempt acquisitions, launch narrative campaigns. Charts spike and plunge.
+- **2:30 – 3:00** — Freeze. Show post-mortem panel: token cost ledger, emergent strategies summary.
 
 ## What Not to Do
 
 - Don't add a database, auth, or user accounts. This is a single-session demo.
 - Don't make the UI scrollable.
 - Don't accept freeform LLM output anywhere — always structured JSON.
-- Don't remove the seed.json fallback or the panic-loop trigger.
+- Don't remove the seed.json fallback or the insolvency-loop trigger.
 - Don't change the tick rate, the WebSocket path, or the state payload shape without updating both sides.
+- Don't add talking-head avatars or lip-sync. The whole point of this UI is to show the *system*, not faces.
 
 ## Working Guidelines
 
@@ -195,7 +214,8 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ## Demo-Day Checklist
 
 - Seed fallback verified by simulating a Gemini outage.
-- All four agents produce visibly distinct outputs (persona test).
+- All three corporations produce visibly distinct outputs (persona test).
 - Chaos button produces a dramatic visible effect within one tick.
 - WebSocket reconnects cleanly if the browser tab is refreshed.
 - No console errors on the dashboard during a 5-minute idle run.
+- Demo mode plays the 3-minute scripted timeline cleanly end-to-end.
