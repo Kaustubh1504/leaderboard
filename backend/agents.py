@@ -187,11 +187,28 @@ def _parse_chaos(response) -> ChaosEvent:
     return ChaosEvent.model_validate_json(response.text)
 
 
+# --- Liveness check (used by tick loop fire-and-forget pattern) ---------- #
+
+def is_live() -> bool:
+    """True if a real Gemini client is ready. False = seed-only mode."""
+    return _get_client() is not None
+
+
 # --- Seed fallback (load-bearing — see CLAUDE.md) ------------------------ #
 
 def _load_seed() -> dict:
     with SEED_PATH.open() as f:
         return json.load(f)
+
+
+def seed_decision(agent: AgentId) -> AgentDecision:
+    """Public alias — the tick loop uses this every tick as the fast path."""
+    return _seed_decision(agent)
+
+
+def seed_chaos() -> ChaosEvent:
+    """Public alias — fallback for when Gemini chaos generation fails."""
+    return _seed_chaos()
 
 
 def _seed_decision(agent: AgentId) -> AgentDecision:

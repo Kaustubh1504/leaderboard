@@ -1,22 +1,32 @@
-"""3-second async game loop. Hacker 3."""
+"""3-second async game loop. Hacker 3.
+
+Fire-and-forget Gemini pattern: each tick uses seed for the fast path, while
+a background task asks Gemini for the next decision per agent. Whichever
+Gemini result is ready by the agent's next turn gets applied; the simulation
+never blocks on a slow LLM call, and no API calls are wasted timing out.
+"""
 
 from __future__ import annotations
 
 import asyncio
 import logging
+from typing import Dict
 
 from . import state, ws
-from .agents import call_agent, call_chaos
-from .schemas import AgentDecision, AgentId, ChaosEvent, Intent, Telemetry
+from .agents import call_agent, is_live, seed_decision
+from .schemas import AgentDecision, AgentId, ChaosEvent, Telemetry
 
 log = logging.getLogger("tick")
 
 TICK_SECONDS = 3
-# Tick-loop Gemini budget. Anything longer falls back to seed.json so the
-# 3-second broadcast cadence stays intact. REST endpoints use the longer
-# default in agents.TIMEOUT_S since they exist to surface a live decision.
-TICK_BUDGET_S = 2.4
+# Background Gemini calls get a generous budget; the tick loop never awaits
+# them directly so the 3-second cadence is decoupled from LLM latency.
+BG_BUDGET_S = 15.0
 CHAOS_QUEUE: asyncio.Queue[ChaosEvent] = asyncio.Queue()
+
+# At most one in-flight Gemini call per agent. Result is consumed on the
+# agent's next turn and a fresh call kicked off.
+_inflight: Dict[AgentId, "asyncio.Task[AgentDecision]"] = {}
 
 
 async def queue_chaos(event: ChaosEvent) -> None:
@@ -53,9 +63,9 @@ async def loop() -> None:
 
 async def _apply_agent(agent: AgentId) -> None:
     panic = agent in state.panic_targets()
-    decision: AgentDecision = await call_agent(
-        agent, state.STATE, panic=panic, timeout=TICK_BUDGET_S,
-    )
+    decision = _consume_inflight(agent) or seed_decision(agent)
+    _kick_inflight(agent, panic)
+
     state.apply_impacts(decision.metric_impact)
     state.set_active(agent, source=agent)
     state.set_telemetry(
@@ -65,6 +75,28 @@ async def _apply_agent(agent: AgentId) -> None:
             target=decision.target,
             patch_size_kb=decision.patch_size_kb,
         )
+    )
+
+
+def _consume_inflight(agent: AgentId):
+    """Return a completed Gemini decision if one is ready, else None."""
+    task = _inflight.get(agent)
+    if not task or not task.done():
+        return None
+    _inflight.pop(agent, None)
+    try:
+        return task.result()
+    except Exception as e:
+        log.warning("inflight gemini failed for %s: %s", agent.value, e)
+        return None
+
+
+def _kick_inflight(agent: AgentId, panic: bool) -> None:
+    """Start a fresh background Gemini call if none in flight and live."""
+    if agent in _inflight or not is_live():
+        return
+    _inflight[agent] = asyncio.create_task(
+        call_agent(agent, state.STATE, panic=panic, timeout=BG_BUDGET_S)
     )
 
 
