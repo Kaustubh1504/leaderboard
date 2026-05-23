@@ -50,7 +50,10 @@ class AgentDecision(BaseModel):
     sender: AgentId
     intent: Intent
     target: AgentId
-    reasoning: str = Field(..., max_length=240)
+    # 500 chars: live Gemini occasionally overshoots 240, which throws away
+    # the whole response. The frontend telemetry pane doesn't render reasoning
+    # anyway, so the extra slack is free.
+    reasoning: str = Field(..., max_length=500)
     patch_size_kb: int = Field(..., ge=0, le=2048)
     metric_impact: list[MetricImpact]
 
@@ -58,7 +61,7 @@ class AgentDecision(BaseModel):
 class ChaosEvent(BaseModel):
     """A catastrophe injected by the Chaos Agent."""
     name: str
-    description: str = Field(..., max_length=240)
+    description: str = Field(..., max_length=500)
     target: AgentId
     metric_impact: list[MetricImpact]
 
