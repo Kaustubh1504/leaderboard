@@ -12,7 +12,7 @@ from .schemas import (
     Telemetry,
 )
 
-CORP_IDS = [CorpId.NEXUSCORP, CorpId.VERTEXAI, CorpId.SHADOWSCALE]
+CORP_IDS = [CorpId.GOOGLE, CorpId.OPENAI, CorpId.ANTHROPIC]
 
 # Per-metric upper bounds. Lower bound is always 0.
 METRIC_MAX = {
@@ -37,7 +37,7 @@ def _initial_leaderboard() -> dict[str, CorpStats]:
 # Mutable global — explicitly the single source of truth for the demo.
 STATE: dict = {
     "tick": 0,
-    "active_agent": CorpId.NEXUSCORP,
+    "active_agent": CorpId.GOOGLE,
     "leaderboard": _initial_leaderboard(),
     "graph_edges": [],
     "last_telemetry": None,

@@ -65,7 +65,7 @@ class TestApplyDecay:
     def test_decay_compounds_across_repeated_calls(self):
         for _ in range(5):
             state.apply_decay()
-        nexus = state.STATE["leaderboard"]["NexusCorp"]
+        nexus = state.STATE["leaderboard"]["Google"]
         assert nexus.cash_reserves == 45
         assert nexus.public_sentiment == 45
         assert nexus.market_share == 45
@@ -74,7 +74,7 @@ class TestApplyDecay:
     def test_decay_touches_all_three_corps(self):
         state.apply_decay()
         assert set(state.STATE["leaderboard"].keys()) == {
-            "NexusCorp",
-            "VertexAI",
-            "ShadowScale",
+            "Google",
+            "OpenAI",
+            "Anthropic",
         }

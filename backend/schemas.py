@@ -24,9 +24,9 @@ class Action(str, Enum):
 
 
 class CorpId(str, Enum):
-    NEXUSCORP = "NexusCorp"
-    VERTEXAI = "VertexAI"
-    SHADOWSCALE = "ShadowScale"
+    GOOGLE = "Google"        # incumbent: Gemini, deep moat, risk-averse
+    OPENAI = "OpenAI"        # aggressive challenger: growth at all costs
+    ANTHROPIC = "Anthropic"  # safety / narrative play, guerilla positioning
     CHAOS = "Chaos_Operator"
 
 

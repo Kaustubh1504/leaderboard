@@ -45,7 +45,7 @@ async def queue_chaos(event: ChaosEvent) -> None:
 
 async def loop() -> None:
     """Main tick loop. Picks next corp, applies decision, broadcasts state."""
-    rotation = [CorpId.NEXUSCORP, CorpId.VERTEXAI, CorpId.SHADOWSCALE]
+    rotation = [CorpId.GOOGLE, CorpId.OPENAI, CorpId.ANTHROPIC]
     idx = 0
 
     if DEMO_MODE:
