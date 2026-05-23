@@ -118,3 +118,24 @@ class StatePayload(BaseModel):
     graph_edges: list[GraphEdge]
     last_telemetry: Optional[Telemetry] = None
     chaos_multipliers: list[ChaosMultiplier] = Field(default_factory=list)
+
+
+# --- Post-mortem panel (feature 3 — emergent strategies summary) -------- #
+
+class CorpStrategySummary(BaseModel):
+    """One corporation's emergent strategy as the post-mortem analyst sees it."""
+    corp: CorpId
+    headline: str = Field(..., max_length=200)
+    dominant_action: Action
+    key_moves: list[str] = Field(..., min_length=1, max_length=5)
+    standing: Literal["ascendant", "stable", "declining", "collapsing"]
+
+
+class PostmortemSummary(BaseModel):
+    """Narrative recap of the run, returned by GET /api/postmortem/summary."""
+    headline: str = Field(..., max_length=240)
+    summary: str = Field(..., max_length=800)
+    corps: list[CorpStrategySummary] = Field(default_factory=list)
+    chaos_count: int = Field(..., ge=0)
+    most_dramatic_chaos: Optional[str] = None  # name of the most impactful chaos event
+    total_ticks_analyzed: int = Field(..., ge=0)
