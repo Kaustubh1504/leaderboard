@@ -7,7 +7,7 @@ Anything not matching this shape is rejected and the seed fallback fires instead
 from __future__ import annotations
 
 from enum import Enum
-from typing import Literal
+from typing import Literal, Optional, Union
 
 from pydantic import BaseModel, Field, conint
 
@@ -30,6 +30,8 @@ class AgentId(str, Enum):
 
 Metric = Literal["velocity", "efficiency", "stability", "stress"]
 ClampedInt = conint(ge=0, le=100)
+# Signed deltas bounded so one hallucinated Gemini call can't wreck the board.
+DeltaInt = conint(ge=-50, le=50)
 
 
 # --- Core models ---------------------------------------------------------- #
@@ -37,10 +39,10 @@ ClampedInt = conint(ge=0, le=100)
 class MetricImpact(BaseModel):
     """Delta to apply to a target agent's leaderboard row. Values are signed."""
     target: AgentId
-    velocity: int = 0
-    efficiency: int = 0
-    stability: int = 0
-    stress: int = 0
+    velocity: DeltaInt = 0
+    efficiency: DeltaInt = 0
+    stability: DeltaInt = 0
+    stress: DeltaInt = 0
 
 
 class AgentDecision(BaseModel):
@@ -78,7 +80,7 @@ class GraphEdge(BaseModel):
 
 class Telemetry(BaseModel):
     sender: AgentId
-    intent: Intent | Literal["CHAOS"]
+    intent: Union[Intent, Literal["CHAOS"]]
     target: AgentId
     patch_size_kb: int
 
@@ -89,4 +91,4 @@ class StatePayload(BaseModel):
     active_agent: AgentId
     leaderboard: dict[str, HackerStats]
     graph_edges: list[GraphEdge]
-    last_telemetry: Telemetry | None = None
+    last_telemetry: Optional[Telemetry] = None
