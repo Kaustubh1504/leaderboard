@@ -1,296 +1,327 @@
 {
   "decisions": [
     {
-      "sender": "Hacker_1",
-      "intent": "OPTIMIZE_CODE",
-      "target": "Hacker_1",
-      "reasoning": "Memoized the leaderboard component to stop re-rendering on every tick.",
-      "patch_size_kb": 18,
+      "sender": "NexusCorp",
+      "action": "defensive_pivot",
+      "target": "NexusCorp",
+      "reason": "protect_q3_guidance_post_volatility",
+      "confidence_score": 0.78,
+      "parameters": {"buyback_size_m": 50, "duration_ticks": 3},
       "metric_impact": [
-        {"target": "Hacker_1", "velocity": 6, "efficiency": 8, "stability": 3, "stress": -2}
+        {"target": "NexusCorp", "stock_value": 8, "cash_reserves": -10, "public_sentiment": 4, "market_share": 0}
       ]
     },
     {
-      "sender": "Hacker_1",
-      "intent": "SUPPORT_TEAMMATE",
-      "target": "Hacker_3",
-      "reasoning": "Wired up the new graph_edges field on the dashboard so Hacker_3 can ship the broadcast change.",
-      "patch_size_kb": 42,
+      "sender": "NexusCorp",
+      "action": "rd_investment",
+      "target": "NexusCorp",
+      "reason": "accelerate_enterprise_inference_roadmap",
+      "confidence_score": 0.82,
+      "parameters": {"capex_m": 75, "horizon_ticks": 6},
       "metric_impact": [
-        {"target": "Hacker_3", "velocity": 8, "efficiency": 4, "stability": 5, "stress": -4},
-        {"target": "Hacker_1", "velocity": -2, "efficiency": 0, "stability": 0, "stress": 3}
+        {"target": "NexusCorp", "stock_value": 6, "cash_reserves": -12, "public_sentiment": 3, "market_share": 5}
       ]
     },
     {
-      "sender": "Hacker_1",
-      "intent": "REDUCE_SCOPE",
-      "target": "Hacker_1",
-      "reasoning": "Dropped the animated tooltip layer — too flickery for the live demo.",
-      "patch_size_kb": 9,
+      "sender": "NexusCorp",
+      "action": "narrative_campaign",
+      "target": "ShadowScale",
+      "reason": "counter_shadow_monopoly_framing",
+      "confidence_score": 0.71,
+      "parameters": {"venues": ["wsj", "bloomberg"], "framing": "responsible_scale"},
       "metric_impact": [
-        {"target": "Hacker_1", "velocity": 4, "efficiency": 6, "stability": 10, "stress": -8}
+        {"target": "NexusCorp", "public_sentiment": 7, "cash_reserves": -4},
+        {"target": "ShadowScale", "public_sentiment": -6}
       ]
     },
     {
-      "sender": "Hacker_1",
-      "intent": "OPTIMIZE_CODE",
-      "target": "Hacker_1",
-      "reasoning": "Switched recharts ResponsiveContainer to a fixed height to kill layout thrash.",
-      "patch_size_kb": 6,
+      "sender": "NexusCorp",
+      "action": "acquire_competitor",
+      "target": "ShadowScale",
+      "reason": "shadow_cash_below_30_vulture_window",
+      "confidence_score": 0.74,
+      "parameters": {"offer_premium_pct": 22, "structure": "all_stock"},
       "metric_impact": [
-        {"target": "Hacker_1", "velocity": 5, "efficiency": 7, "stability": 4, "stress": -3}
+        {"target": "NexusCorp", "stock_value": -8, "cash_reserves": -25, "market_share": 18},
+        {"target": "ShadowScale", "stock_value": 12, "market_share": -18}
       ]
     },
     {
-      "sender": "Hacker_1",
-      "intent": "SUPPORT_TEAMMATE",
-      "target": "Hacker_2",
-      "reasoning": "Mocked the AgentDecision shape end-to-end so Hacker_2 can validate Gemini output offline.",
-      "patch_size_kb": 24,
+      "sender": "NexusCorp",
+      "action": "defensive_pivot",
+      "target": "NexusCorp",
+      "reason": "wind_down_low_margin_consumer_sku",
+      "confidence_score": 0.69,
+      "parameters": {"product_lines_cut": 2, "cost_save_m": 35},
       "metric_impact": [
-        {"target": "Hacker_2", "velocity": 7, "efficiency": 5, "stability": 4, "stress": -5}
+        {"target": "NexusCorp", "stock_value": 4, "cash_reserves": 15, "market_share": -6, "public_sentiment": -3}
       ]
     },
     {
-      "sender": "Hacker_2",
-      "intent": "OPTIMIZE_CODE",
-      "target": "Hacker_2",
-      "reasoning": "Cached the Gemini client and pre-bound the structured output config.",
-      "patch_size_kb": 14,
+      "sender": "NexusCorp",
+      "action": "rd_investment",
+      "target": "NexusCorp",
+      "reason": "secure_long_term_gpu_supply_pact",
+      "confidence_score": 0.85,
+      "parameters": {"capex_m": 120, "supplier": "tsmc_n2"},
       "metric_impact": [
-        {"target": "Hacker_2", "velocity": 6, "efficiency": 9, "stability": 3, "stress": -2}
+        {"target": "NexusCorp", "stock_value": 10, "cash_reserves": -20, "market_share": 4}
       ]
     },
     {
-      "sender": "Hacker_2",
-      "intent": "REDUCE_SCOPE",
-      "target": "Hacker_2",
-      "reasoning": "Cut the experimental tool-use path; sticking to structured output for demo stability.",
-      "patch_size_kb": 22,
+      "sender": "NexusCorp",
+      "action": "narrative_campaign",
+      "target": "VertexAI",
+      "reason": "highlight_vertex_burn_rate_to_analysts",
+      "confidence_score": 0.76,
+      "parameters": {"venues": ["ft", "barrons"], "framing": "unsustainable_growth"},
       "metric_impact": [
-        {"target": "Hacker_2", "velocity": 3, "efficiency": 5, "stability": 12, "stress": -7}
+        {"target": "NexusCorp", "public_sentiment": 5, "cash_reserves": -3},
+        {"target": "VertexAI", "public_sentiment": -8, "stock_value": -5}
       ]
     },
     {
-      "sender": "Hacker_2",
-      "intent": "SUPPORT_TEAMMATE",
-      "target": "Hacker_4",
-      "reasoning": "Tightened the persona prompt loader so Hacker_4's edits hot-reload without a restart.",
-      "patch_size_kb": 11,
+      "sender": "VertexAI",
+      "action": "predatory_pricing",
+      "target": "NexusCorp",
+      "reason": "flank_nexus_q4_enterprise_renewals",
+      "confidence_score": 0.88,
+      "parameters": {"margin_cut_pct": 18, "segment": "enterprise_inference", "duration_ticks": 4},
       "metric_impact": [
-        {"target": "Hacker_4", "velocity": 8, "efficiency": 4, "stability": 5, "stress": -4}
+        {"target": "VertexAI", "cash_reserves": -22, "market_share": 14, "stock_value": -4},
+        {"target": "NexusCorp", "market_share": -14, "cash_reserves": -6}
       ]
     },
     {
-      "sender": "Hacker_2",
-      "intent": "OPTIMIZE_CODE",
-      "target": "Hacker_2",
-      "reasoning": "Added a 1.2s timeout on Gemini calls so a slow response can't stall the tick loop.",
-      "patch_size_kb": 8,
+      "sender": "VertexAI",
+      "action": "predatory_pricing",
+      "target": "ShadowScale",
+      "reason": "squeeze_shadow_smb_segment",
+      "confidence_score": 0.82,
+      "parameters": {"margin_cut_pct": 25, "segment": "smb_api", "duration_ticks": 3},
       "metric_impact": [
-        {"target": "Hacker_2", "velocity": 4, "efficiency": 6, "stability": 9, "stress": -5}
+        {"target": "VertexAI", "cash_reserves": -15, "market_share": 9},
+        {"target": "ShadowScale", "market_share": -9, "cash_reserves": -10}
       ]
     },
     {
-      "sender": "Hacker_2",
-      "intent": "SUPPORT_TEAMMATE",
-      "target": "Hacker_3",
-      "reasoning": "Returned a clean fallback decision when Gemini errors so Hacker_3's loop never sees None.",
-      "patch_size_kb": 16,
+      "sender": "VertexAI",
+      "action": "rd_investment",
+      "target": "VertexAI",
+      "reason": "step_change_multimodal_model_release",
+      "confidence_score": 0.91,
+      "parameters": {"capex_m": 180, "release_window_ticks": 8},
       "metric_impact": [
-        {"target": "Hacker_3", "velocity": 5, "efficiency": 7, "stability": 6, "stress": -3}
+        {"target": "VertexAI", "stock_value": 18, "cash_reserves": -28, "public_sentiment": 9, "market_share": 6}
       ]
     },
     {
-      "sender": "Hacker_3",
-      "intent": "OPTIMIZE_CODE",
-      "target": "Hacker_3",
-      "reasoning": "Replaced per-client send awaits with a gather() — broadcast latency down 60%.",
-      "patch_size_kb": 19,
+      "sender": "VertexAI",
+      "action": "rd_investment",
+      "target": "VertexAI",
+      "reason": "in_house_silicon_tape_out_phase_2",
+      "confidence_score": 0.86,
+      "parameters": {"capex_m": 95, "supplier": "samsung_3gae"},
       "metric_impact": [
-        {"target": "Hacker_3", "velocity": 8, "efficiency": 10, "stability": 4, "stress": -3}
+        {"target": "VertexAI", "stock_value": 8, "cash_reserves": -18, "market_share": 4}
       ]
     },
     {
-      "sender": "Hacker_3",
-      "intent": "OPTIMIZE_CODE",
-      "target": "Hacker_3",
-      "reasoning": "Clamp utility hoisted out of the hot loop. Saves a few hundred allocations per tick.",
-      "patch_size_kb": 4,
+      "sender": "VertexAI",
+      "action": "acquire_competitor",
+      "target": "ShadowScale",
+      "reason": "shadow_q3_cash_collapse_inflection",
+      "confidence_score": 0.79,
+      "parameters": {"offer_premium_pct": 35, "structure": "cash_and_stock"},
       "metric_impact": [
-        {"target": "Hacker_3", "velocity": 4, "efficiency": 5, "stability": 3, "stress": -1}
+        {"target": "VertexAI", "stock_value": -6, "cash_reserves": -32, "market_share": 16},
+        {"target": "ShadowScale", "stock_value": 14, "market_share": -16}
       ]
     },
     {
-      "sender": "Hacker_3",
-      "intent": "REDUCE_SCOPE",
-      "target": "Hacker_3",
-      "reasoning": "Killed the persistence layer — in-memory only for the demo, exactly as the spec says.",
-      "patch_size_kb": 33,
+      "sender": "VertexAI",
+      "action": "narrative_campaign",
+      "target": "NexusCorp",
+      "reason": "frame_nexus_as_legacy_incumbent",
+      "confidence_score": 0.83,
+      "parameters": {"venues": ["techcrunch", "the_information"], "framing": "stagnation_narrative"},
       "metric_impact": [
-        {"target": "Hacker_3", "velocity": 6, "efficiency": 8, "stability": 11, "stress": -9}
+        {"target": "VertexAI", "public_sentiment": 8, "cash_reserves": -5},
+        {"target": "NexusCorp", "public_sentiment": -9, "stock_value": -4}
       ]
     },
     {
-      "sender": "Hacker_3",
-      "intent": "SUPPORT_TEAMMATE",
-      "target": "Hacker_1",
-      "reasoning": "Pinned the WebSocket payload shape and shipped a /api/state endpoint for cold loads.",
-      "patch_size_kb": 21,
+      "sender": "VertexAI",
+      "action": "espionage",
+      "target": "NexusCorp",
+      "reason": "extract_nexus_q4_pricing_deck",
+      "confidence_score": 0.72,
+      "parameters": {"method": "compromised_consultant", "target_asset": "pricing_roadmap"},
       "metric_impact": [
-        {"target": "Hacker_1", "velocity": 7, "efficiency": 5, "stability": 6, "stress": -4}
+        {"target": "VertexAI", "market_share": 6, "public_sentiment": -3},
+        {"target": "NexusCorp", "stock_value": -7, "public_sentiment": -2}
       ]
     },
     {
-      "sender": "Hacker_3",
-      "intent": "OPTIMIZE_CODE",
-      "target": "Hacker_3",
-      "reasoning": "Added silent drop-on-disconnect for the WS pool. No more stack traces on tab close.",
-      "patch_size_kb": 7,
+      "sender": "ShadowScale",
+      "action": "narrative_campaign",
+      "target": "NexusCorp",
+      "reason": "nexus_caught_using_offshore_data_labelers",
+      "confidence_score": 0.77,
+      "parameters": {"venues": ["reddit_business", "twitter"], "framing": "labor_practices_scandal"},
       "metric_impact": [
-        {"target": "Hacker_3", "velocity": 3, "efficiency": 6, "stability": 8, "stress": -4}
+        {"target": "ShadowScale", "public_sentiment": 11, "cash_reserves": -4},
+        {"target": "NexusCorp", "public_sentiment": -12, "stock_value": -6}
       ]
     },
     {
-      "sender": "Hacker_4",
-      "intent": "OPTIMIZE_CODE",
-      "target": "Hacker_4",
-      "reasoning": "Rewrote the chaos prompt — events now read like incident reports, not bug tickets.",
-      "patch_size_kb": 5,
+      "sender": "ShadowScale",
+      "action": "narrative_campaign",
+      "target": "VertexAI",
+      "reason": "vertex_ceo_q3_earnings_call_overpromised",
+      "confidence_score": 0.74,
+      "parameters": {"venues": ["the_information", "techmeme"], "framing": "credibility_dip"},
       "metric_impact": [
-        {"target": "Hacker_4", "velocity": 5, "efficiency": 8, "stability": 4, "stress": -2}
+        {"target": "ShadowScale", "public_sentiment": 9, "cash_reserves": -3},
+        {"target": "VertexAI", "public_sentiment": -10, "stock_value": -5}
       ]
     },
     {
-      "sender": "Hacker_4",
-      "intent": "SUPPORT_TEAMMATE",
-      "target": "Hacker_2",
-      "reasoning": "Locked all persona output schemas to AgentDecision — Hacker_2's validator stops choking.",
-      "patch_size_kb": 12,
+      "sender": "ShadowScale",
+      "action": "narrative_campaign",
+      "target": "ShadowScale",
+      "reason": "amplify_scrappy_underdog_brand_arc",
+      "confidence_score": 0.68,
+      "parameters": {"venues": ["substack", "youtube_long_form"], "framing": "asymmetric_innovator"},
       "metric_impact": [
-        {"target": "Hacker_2", "velocity": 4, "efficiency": 8, "stability": 7, "stress": -5}
+        {"target": "ShadowScale", "public_sentiment": 13, "cash_reserves": -6, "market_share": 3}
       ]
     },
     {
-      "sender": "Hacker_4",
-      "intent": "OPTIMIZE_CODE",
-      "target": "Hacker_4",
-      "reasoning": "Doubled the seed.json fallback pool. The stage safety net is now twice as deep.",
-      "patch_size_kb": 28,
+      "sender": "ShadowScale",
+      "action": "espionage",
+      "target": "VertexAI",
+      "reason": "vertex_internal_burn_rate_dossier",
+      "confidence_score": 0.71,
+      "parameters": {"method": "ex_employee_recruit", "target_asset": "financial_model"},
       "metric_impact": [
-        {"target": "Hacker_4", "velocity": 6, "efficiency": 5, "stability": 12, "stress": -6}
+        {"target": "ShadowScale", "market_share": 5, "public_sentiment": -2},
+        {"target": "VertexAI", "stock_value": -6, "public_sentiment": -3}
       ]
     },
     {
-      "sender": "Hacker_4",
-      "intent": "REDUCE_SCOPE",
-      "target": "Hacker_4",
-      "reasoning": "Cut the 'helpful collaborator' persona — too bland on stage. Keeping the four sharp ones.",
-      "patch_size_kb": 15,
+      "sender": "ShadowScale",
+      "action": "espionage",
+      "target": "NexusCorp",
+      "reason": "leak_nexus_compliance_audit_findings",
+      "confidence_score": 0.66,
+      "parameters": {"method": "regulator_contact", "target_asset": "audit_summary"},
       "metric_impact": [
-        {"target": "Hacker_4", "velocity": 3, "efficiency": 6, "stability": 8, "stress": -4}
+        {"target": "ShadowScale", "public_sentiment": 4, "market_share": 4},
+        {"target": "NexusCorp", "public_sentiment": -8, "stock_value": -5}
       ]
     },
     {
-      "sender": "Hacker_4",
-      "intent": "SUPPORT_TEAMMATE",
-      "target": "Hacker_1",
-      "reasoning": "Wrote demo-ready commentary strings so Hacker_1's telemetry pane reads dramatically.",
-      "patch_size_kb": 9,
+      "sender": "ShadowScale",
+      "action": "defensive_pivot",
+      "target": "ShadowScale",
+      "reason": "extend_runway_cut_non_core_lines",
+      "confidence_score": 0.81,
+      "parameters": {"product_lines_cut": 3, "cost_save_m": 22},
       "metric_impact": [
-        {"target": "Hacker_1", "velocity": 4, "efficiency": 3, "stability": 6, "stress": -3}
+        {"target": "ShadowScale", "stock_value": 5, "cash_reserves": 18, "market_share": -5}
       ]
     }
   ],
   "chaos_events": [
     {
-      "name": "Production Outage",
-      "description": "us-east-1 just went dark mid-demo. Every dashboard is a tombstone.",
-      "target": "Hacker_3",
+      "name": "EU AI Act Emergency Amendment",
+      "description": "Brussels publishes a 4 AM emergency amendment requiring frontier-model providers to disclose training data lineage within 30 days. Enterprise customers freeze new commitments. NexusCorp, the largest US incumbent, takes the brunt of the compliance overhead.",
+      "target": "NexusCorp",
       "metric_impact": [
-        {"target": "Hacker_3", "velocity": -20, "efficiency": -25, "stability": -35, "stress": 30},
-        {"target": "Hacker_1", "velocity": 5, "efficiency": 0, "stability": -8, "stress": 12}
+        {"target": "NexusCorp", "stock_value": -40, "cash_reserves": -25, "public_sentiment": -20, "market_share": -8},
+        {"target": "ShadowScale", "stock_value": 18, "public_sentiment": 12}
       ]
     },
     {
-      "name": "API Key Leaked",
-      "description": "Hacker_2's Gemini key just landed on a public gist. Quota is on fire.",
-      "target": "Hacker_2",
+      "name": "TSMC Fab 22 Goes Offline",
+      "description": "A coolant system failure at TSMC's Fab 22 takes leading-edge GPU production offline for an estimated 6 weeks. Hyperscaler allocation gets re-cut overnight. The corp most dependent on cutting-edge silicon for differentiation absorbs the shock.",
+      "target": "VertexAI",
       "metric_impact": [
-        {"target": "Hacker_2", "velocity": -18, "efficiency": -30, "stability": -28, "stress": 35},
-        {"target": "Hacker_4", "velocity": 6, "efficiency": 0, "stability": -5, "stress": 10}
+        {"target": "VertexAI", "stock_value": -45, "cash_reserves": -18, "market_share": -22},
+        {"target": "NexusCorp", "market_share": 16, "stock_value": 10}
       ]
     },
     {
-      "name": "Dependency Hell",
-      "description": "A transitive npm bump just broke React Flow. The graph won't mount.",
-      "target": "Hacker_1",
+      "name": "DOJ Files Antitrust Suit Against Market Leader",
+      "description": "The DOJ files a sweeping antitrust complaint targeting the largest AI provider's bundling practices in its enterprise cloud stack. Pre-market futures gap down 8% on the news.",
+      "target": "NexusCorp",
       "metric_impact": [
-        {"target": "Hacker_1", "velocity": -22, "efficiency": -20, "stability": -30, "stress": 28},
-        {"target": "Hacker_3", "velocity": 5, "efficiency": 0, "stability": -4, "stress": 9}
+        {"target": "NexusCorp", "stock_value": -55, "public_sentiment": -28, "market_share": -10},
+        {"target": "VertexAI", "stock_value": 22, "market_share": 14}
       ]
     },
     {
-      "name": "Schema Drift",
-      "description": "Gemini started returning enum values nobody added. The validator is rejecting every call.",
-      "target": "Hacker_4",
+      "name": "Frontier Training Data Lawsuit Certified",
+      "description": "A federal court certifies a class-action lawsuit from 14 major publishers over unlicensed training data. Damages estimates run into the billions. The defendant with the deepest model corpus is the natural target.",
+      "target": "VertexAI",
       "metric_impact": [
-        {"target": "Hacker_4", "velocity": -15, "efficiency": -25, "stability": -32, "stress": 30},
-        {"target": "Hacker_2", "velocity": 7, "efficiency": 0, "stability": -6, "stress": 11}
+        {"target": "VertexAI", "stock_value": -38, "cash_reserves": -30, "public_sentiment": -25},
+        {"target": "ShadowScale", "public_sentiment": 14, "market_share": 8}
       ]
     },
     {
-      "name": "Tick Loop Stall",
-      "description": "A blocking call snuck into the tick loop. 14 seconds since the last broadcast.",
-      "target": "Hacker_3",
+      "name": "Hyperscaler Flash Outage Cascades",
+      "description": "A regional cloud failure cascades across three availability zones for 4 hours. Inference SLAs blown across the industry. The corp most reliant on hosted inference for its enterprise revenue takes the reputational hit.",
+      "target": "NexusCorp",
       "metric_impact": [
-        {"target": "Hacker_3", "velocity": -25, "efficiency": -28, "stability": -38, "stress": 35},
-        {"target": "Hacker_1", "velocity": 8, "efficiency": 0, "stability": -5, "stress": 10}
+        {"target": "NexusCorp", "stock_value": -28, "public_sentiment": -22, "market_share": -12},
+        {"target": "ShadowScale", "public_sentiment": 16, "market_share": 9}
       ]
     },
     {
-      "name": "WebSocket Storm",
-      "description": "A debug script is reconnecting 200 times a second. The pool is melting.",
-      "target": "Hacker_3",
+      "name": "Whistleblower Leaks Internal Benchmarks",
+      "description": "A senior researcher leaks an internal memo showing model performance regressions hidden from public benchmarks. The corp painted as the offender loses analyst credibility overnight.",
+      "target": "VertexAI",
       "metric_impact": [
-        {"target": "Hacker_3", "velocity": -18, "efficiency": -22, "stability": -28, "stress": 26},
-        {"target": "Hacker_2", "velocity": 6, "efficiency": 0, "stability": -3, "stress": 8}
+        {"target": "VertexAI", "stock_value": -35, "public_sentiment": -30, "market_share": -6},
+        {"target": "NexusCorp", "public_sentiment": 12, "stock_value": 14}
       ]
     },
     {
-      "name": "Stage Wi-Fi Drops",
-      "description": "The venue Wi-Fi just rolled over. Five minutes to keynote.",
-      "target": "Hacker_2",
+      "name": "Taiwan Strait Shipping Halt",
+      "description": "A 72-hour shipping halt across the Taiwan Strait freezes hardware logistics. Insurance premiums on AI-grade GPUs spike 40%. The corp with the leanest forward inventory buffer feels it first.",
+      "target": "ShadowScale",
       "metric_impact": [
-        {"target": "Hacker_2", "velocity": -20, "efficiency": -30, "stability": -25, "stress": 33},
-        {"target": "Hacker_4", "velocity": 9, "efficiency": 4, "stability": 0, "stress": 7}
+        {"target": "ShadowScale", "cash_reserves": -32, "market_share": -18, "stock_value": -25},
+        {"target": "NexusCorp", "market_share": 11, "stock_value": 8}
       ]
     },
     {
-      "name": "Browser Tab Crashed",
-      "description": "The demo laptop's Chrome tab OOM'd. Live state is gone.",
-      "target": "Hacker_1",
+      "name": "Sovereign AI Mandate Hits Public Cloud",
+      "description": "France, Germany, and India simultaneously announce 'sovereign AI' requirements blocking foreign-hosted inference for public-sector contracts. The corp with the largest international public-sector book takes a step-function revenue hit.",
+      "target": "NexusCorp",
       "metric_impact": [
-        {"target": "Hacker_1", "velocity": -16, "efficiency": -18, "stability": -30, "stress": 25},
-        {"target": "Hacker_3", "velocity": 7, "efficiency": 0, "stability": -4, "stress": 9}
+        {"target": "NexusCorp", "stock_value": -32, "market_share": -20, "cash_reserves": -18},
+        {"target": "VertexAI", "market_share": 13, "stock_value": 11}
       ]
     },
     {
-      "name": "Persona Rewrite Drift",
-      "description": "Last-minute prompt edits made every agent talk in the same monotone.",
-      "target": "Hacker_4",
+      "name": "Open-Weights Model Release From Beijing",
+      "description": "A state-backed Chinese lab releases an open-weights frontier model under permissive licensing. The race to the bottom on inference pricing accelerates. The challenger most exposed to commodity API revenue takes the largest sentiment hit.",
+      "target": "VertexAI",
       "metric_impact": [
-        {"target": "Hacker_4", "velocity": -15, "efficiency": -22, "stability": -25, "stress": 24},
-        {"target": "Hacker_2", "velocity": 5, "efficiency": 0, "stability": -3, "stress": 8}
+        {"target": "VertexAI", "stock_value": -30, "market_share": -15, "public_sentiment": -18},
+        {"target": "ShadowScale", "market_share": 12, "public_sentiment": 9}
       ]
     },
     {
-      "name": "CORS Wall",
-      "description": "A middleware change blocked the frontend from talking to the backend at all.",
-      "target": "Hacker_3",
+      "name": "Energy Grid Curtailment in Texas",
+      "description": "ERCOT issues a Level 2 curtailment notice over a 96-hour heatwave. Data center operators are forced into rolling brownouts. The corp with the most Texas-based training capacity loses a full training cycle.",
+      "target": "ShadowScale",
       "metric_impact": [
-        {"target": "Hacker_3", "velocity": -18, "efficiency": -25, "stability": -28, "stress": 28},
-        {"target": "Hacker_1", "velocity": 8, "efficiency": 0, "stability": -6, "stress": 12}
+        {"target": "ShadowScale", "stock_value": -22, "cash_reserves": -15, "market_share": -10},
+        {"target": "VertexAI", "stock_value": 9, "market_share": 7}
       ]
     }
   ]

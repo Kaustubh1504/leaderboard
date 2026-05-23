@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Set
 
@@ -17,6 +18,9 @@ CLIENTS: Set[WebSocket] = set()
 async def register(ws: WebSocket) -> None:
     await ws.accept()
     CLIENTS.add(ws)
+    # Local import avoids a state <-> ws module cycle at load time.
+    from . import state
+    await ws.send_text(state.snapshot().model_dump_json())
 
 
 def unregister(ws: WebSocket) -> None:
@@ -27,14 +31,14 @@ async def broadcast(payload: StatePayload) -> None:
     if not CLIENTS:
         return
     msg = payload.model_dump_json()
-    dead: list[WebSocket] = []
-    for client in CLIENTS:
-        try:
-            await client.send_text(msg)
-        except Exception:
-            dead.append(client)
-    for d in dead:
-        CLIENTS.discard(d)
+    clients = list(CLIENTS)
+    results = await asyncio.gather(
+        *(c.send_text(msg) for c in clients),
+        return_exceptions=True,
+    )
+    for client, result in zip(clients, results):
+        if isinstance(result, Exception):
+            CLIENTS.discard(client)
 
 
 async def serve(ws: WebSocket) -> None:
