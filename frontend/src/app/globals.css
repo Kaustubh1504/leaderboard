@@ -610,6 +610,11 @@ html, body {
   position: relative;
   height: 100%;
   min-width: 0;
+  /* Grid items default to min-height: auto and refuse to shrink below
+     their content. Without this, a tall CHAOS LOG inside .dashboard-column
+     pushes the grid track past calc(100vh - 64px), and the panel header
+     slides below the viewport as logs accumulate. */
+  min-height: 0;
 }
 
 .collapsible-pane.expanded {
@@ -901,79 +906,170 @@ html, body {
 .corp-popover {
   position: fixed;
   z-index: 50;
-  transform: translateY(-50%);
-  width: 260px;
-  background: rgba(8, 13, 26, 0.96);
+  top: 12.5vh;
+  right: 24px;
+  width: 520px;
+  height: 75vh;
+  overflow-y: auto;
+  background: rgba(8, 13, 26, 0.97);
   border: 1px solid var(--accent-cyan);
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 18px rgba(0, 240, 255, 0.25);
-  padding: 10px 12px;
+  border-radius: 14px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65), 0 0 32px rgba(0, 240, 255, 0.35);
+  padding: 24px 26px;
   pointer-events: none;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
   animation: fade-in 0.12s ease;
+  display: flex;
+  flex-direction: column;
 }
-.corp-popover.side-left {
-  transform: translate(-100%, -50%) translateX(-24px);
+/* Anchor-based positioning is no longer used — the popover docks to the
+   viewport's right edge so it sits adjacent to the graph at full height. */
+.corp-popover.side-left,
+.corp-popover.side-right {
+  transform: none;
 }
 .corp-popover-header {
-  font-size: 14px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--accent-cyan);
   letter-spacing: 0.04em;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
   border-bottom: 1px solid var(--border-color);
-  padding-bottom: 6px;
+  padding-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.corp-popover-model {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent-green);
+  background: rgba(57, 255, 14, 0.1);
+  border: 1px solid rgba(57, 255, 14, 0.3);
+  padding: 5px 10px;
+  border-radius: 5px;
+  text-transform: lowercase;
+}
+
+.corp-popover-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.corp-popover-metric {
+  background: rgba(5, 7, 12, 0.6);
+  border: 1px solid rgba(26, 38, 63, 0.5);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.corp-popover-metric-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.corp-popover-metric-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.metric-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.metric-delta.up { background: rgba(57, 255, 14, 0.12); color: var(--accent-green); }
+.metric-delta.down { background: rgba(255, 7, 58, 0.12); color: var(--accent-red); }
+.metric-delta.flat { background: rgba(26, 38, 63, 0.4); color: var(--text-muted); }
+.corp-popover-metric-value {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+.corp-popover-metric-chart {
+  height: 110px;
+  margin-top: 6px;
+}
+.corp-popover-metric-chart-empty {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  padding-top: 18px;
 }
 .corp-popover-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 .corp-popover-grid > div {
   display: flex;
   flex-direction: column;
   background: rgba(5, 7, 12, 0.5);
   border: 1px solid rgba(26, 38, 63, 0.4);
-  padding: 5px 8px;
-  border-radius: 4px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  gap: 2px;
+}
+.corp-popover-grid .stat-label {
+  font-size: 10px;
+}
+.corp-popover-grid .stat-value {
+  font-size: 18px;
 }
 .corp-popover-empty {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
   font-style: italic;
 }
 .corp-popover-recent {
   border-top: 1px solid var(--border-color);
-  padding-top: 8px;
+  padding-top: 14px;
+  margin-top: 14px;
 }
 .corp-popover-recent-label {
-  font-size: 9px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-muted);
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 .corp-popover-recent-line {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-primary);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 .corp-popover-recent-reason {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-secondary);
   word-break: break-word;
 }
 .action-chip {
   display: inline-block;
-  padding: 1px 6px;
-  border-radius: 3px;
+  padding: 3px 8px;
+  border-radius: 4px;
   background: rgba(57, 255, 14, 0.12);
   border: 1px solid rgba(57, 255, 14, 0.3);
   color: var(--accent-green);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   margin-right: 4px;
 }
 
@@ -1253,29 +1349,29 @@ html, body {
 /* --- Corp popover: trend + recent-activity sections ------------------- */
 .corp-popover-trends {
   border-top: 1px solid var(--border-color);
-  padding-top: 8px;
-  margin-top: 8px;
+  padding-top: 12px;
+  margin-top: 12px;
 }
 .corp-popover-trends-label {
-  font-size: 9px;
+  font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--text-muted);
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 .corp-popover-trends-row {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 .trend {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   font-family: var(--font-mono);
-  font-size: 10px;
-  padding: 1px 5px;
-  border-radius: 4px;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 5px;
 }
 .trend.up {
   background: rgba(57, 255, 14, 0.12);
@@ -1299,10 +1395,10 @@ html, body {
 .corp-popover-recent-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
+  gap: 10px;
+  font-size: 13px;
   font-family: var(--font-mono);
-  padding: 2px 0;
+  padding: 6px 0;
   border-bottom: 1px dashed rgba(26, 38, 63, 0.4);
 }
 .corp-popover-recent-row:last-child {
@@ -1310,18 +1406,19 @@ html, body {
 }
 .corp-popover-recent-tick {
   color: var(--accent-cyan);
-  font-size: 10px;
-  min-width: 28px;
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 40px;
 }
 .corp-popover-recent-dir {
   color: var(--text-secondary);
-  font-size: 10px;
+  font-size: 13px;
 }
 .corp-popover-recent-reason-mini {
   color: var(--text-muted);
-  font-size: 10px;
+  font-size: 12px;
   margin-left: auto;
-  max-width: 110px;
+  max-width: 220px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
