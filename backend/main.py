@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from . import state, tick, ws
-from .agents import call_agent, call_chaos
+from .agents import call_agent, call_chaos, call_summary
 from .schemas import CorpId
 
 
@@ -60,6 +60,17 @@ async def inject_chaos(req: ChaosInjectRequest):
     event = await call_chaos(state.STATE, user_prompt=req.prompt)
     await tick.queue_chaos(event)
     return event.model_dump()
+
+
+@app.get("/api/postmortem/summary")
+async def get_postmortem_summary():
+    """Emergent-strategy narrative for the post-mortem panel.
+
+    Bigger Gemini budget (20s) than other endpoints — the analyst prompt
+    carries the full decision history, so the round-trip is slower.
+    """
+    summary = await call_summary(state.STATE, timeout=20.0)
+    return summary.model_dump()
 
 
 @app.post("/api/agent/{corp_id}/query")
