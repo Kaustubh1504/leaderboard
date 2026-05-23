@@ -35,7 +35,7 @@ async def get_state():
 
 @app.post("/api/chaos/trigger")
 async def trigger_chaos():
-    event = await call_chaos()
+    event = await call_chaos(state.STATE)
     await tick.queue_chaos(event)
     return event.model_dump()
 
