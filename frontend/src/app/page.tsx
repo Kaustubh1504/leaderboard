@@ -17,7 +17,7 @@ export default function Home() {
     history,
     connectionStatus,
     logs,
-    rawTelemetry,
+    events,
     triggerChaos,
     triggerCustomChaos,
     queryAgent,
@@ -84,6 +84,8 @@ export default function Home() {
               // if the operator had collapsed it, popping it back is the right UX.
               setRightCollapsed(false);
             }}
+            history={history}
+            events={events}
           />
         </div>
 
@@ -103,7 +105,7 @@ export default function Home() {
                 onClose={() => setSelectedCorp(null)}
               />
             ) : (
-              <TelemetryStream rawTelemetry={rawTelemetry} />
+              <TelemetryStream events={events} />
             )}
           </div>
         </CollapsiblePane>

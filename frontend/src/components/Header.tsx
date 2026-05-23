@@ -22,7 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="header">
       <div className="header-title-section">
-        <Activity size={20} className="text-cyan-400" style={{ color: "var(--accent-cyan)" }} />
+        <Activity size={28} className="text-cyan-400" style={{ color: "var(--accent-cyan)" }} />
         <h1 className="header-title">NEXUS-OS // MARKET CONTROL</h1>
 
         {connectionStatus === "live" && (

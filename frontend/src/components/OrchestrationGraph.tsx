@@ -8,10 +8,11 @@ import ReactFlow, {
   Node,
   Background,
   BackgroundVariant,
+  Controls,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { GitBranch, Maximize2, Minimize2 } from "lucide-react";
-import { CorpId, LeaderboardEntry, TelemetryState } from "../lib/ws";
+import { CorpId, LeaderboardEntry, TelemetryEvent, TelemetryState } from "../lib/ws";
 import { CorpOverviewPopover } from "./CorpOverviewPopover";
 
 // Larger custom-node renderer with hover + click hooks.
@@ -55,6 +56,10 @@ interface OrchestrationGraphProps {
   onToggleMaximize: () => void;
   /** Called when the user clicks a corp node — opens the activity pane. */
   onSelectCorp: (corp: CorpId) => void;
+  /** Per-corp time series — feeds the popover's ticker delta. */
+  history: Record<string, LeaderboardEntry[]>;
+  /** Rolling per-tick events — feeds the popover's recent-actions list. */
+  events: TelemetryEvent[];
 }
 
 // 4 nodes: Chaos in the centre, 3 corps around it. Slightly larger
@@ -82,6 +87,8 @@ export const OrchestrationGraph: React.FC<OrchestrationGraphProps> = ({
   maximized,
   onToggleMaximize,
   onSelectCorp,
+  history,
+  events,
 }) => {
   const [mounted, setMounted] = useState(false);
   const [hovered, setHovered] = useState<{ id: CorpId; anchor: { x: number; y: number } } | null>(null);
@@ -193,11 +200,14 @@ export const OrchestrationGraph: React.FC<OrchestrationGraphProps> = ({
             nodesDraggable={false}
             nodesConnectable={false}
             elementsSelectable={false}
-            zoomOnScroll={false}
-            zoomOnPinch={false}
-            zoomOnDoubleClick={false}
-            panOnDrag={false}
+            zoomOnScroll={true}
+            zoomOnPinch={true}
+            zoomOnDoubleClick={true}
+            panOnDrag={true}
+            minZoom={0.6}
+            maxZoom={2.5}
           >
+            <Controls showInteractive={false} position="bottom-right" />
             <Background
               variant={BackgroundVariant.Lines}
               color="var(--border-color)"
@@ -213,6 +223,8 @@ export const OrchestrationGraph: React.FC<OrchestrationGraphProps> = ({
             stats={hoveredStats}
             lastTelemetry={state.last_telemetry}
             anchor={hovered.anchor}
+            history={history[hovered.id]}
+            events={events}
           />
         )}
       </div>

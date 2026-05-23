@@ -65,6 +65,22 @@ export interface LogEntry {
   involvedCorps: CorpId[];
 }
 
+/**
+ * Structured per-tick event. Captures the telemetry frame plus the
+ * computed deltas on the leaderboard between this tick and the previous,
+ * so the TelemetryStream and hover popover can render *impact* without
+ * needing the backend to ship metric_impact on the wire.
+ */
+export interface TelemetryEvent {
+  id: string;
+  tick: number;
+  timestamp: string;
+  telemetry: LastTelemetry;
+  /** corp -> metric -> signed delta (current - previous) */
+  deltas: Record<string, Partial<LeaderboardEntry>>;
+  isChaos: boolean;
+}
+
 // --- Initial defaults --------------------------------------------------- //
 
 const CORP_ROTATION: CorpId[] = ["Google", "OpenAI", "Anthropic"];
@@ -132,11 +148,40 @@ const mockEvents: MockEvent[] = [
   { sender: "OpenAI",    action: "predatory_pricing",    target: "Anthropic", reason: "squeeze_anthropic_smb_segment",         confidence_score: 0.82, msg: "OpenAI launches aggressive SMB pricing tier — squeezes Anthropic.", sentimentImpact: 0, shareImpact:  -9 },
 ];
 
+const EVENT_HISTORY_CAP = 30;
+
+/** Compute corp-level deltas between two leaderboard snapshots. */
+function computeDeltas(
+  next: Leaderboard,
+  prev: Leaderboard,
+): Record<string, Partial<LeaderboardEntry>> {
+  const out: Record<string, Partial<LeaderboardEntry>> = {};
+  for (const corp of Object.keys(next)) {
+    const a = next[corp];
+    const b = prev[corp];
+    if (!a || !b) continue;
+    const d: Partial<LeaderboardEntry> = {};
+    let touched = false;
+    (Object.keys(a) as (keyof LeaderboardEntry)[]).forEach((k) => {
+      const diff = a[k] - b[k];
+      if (diff !== 0) {
+        d[k] = diff;
+        touched = true;
+      }
+    });
+    if (touched) out[corp] = d;
+  }
+  return out;
+}
+
 export function useTelemetry() {
   const [state, setState] = useState<TelemetryState>(initialState);
   const [connectionStatus, setConnectionStatus] = useState<"connecting" | "live" | "mocked">("connecting");
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [rawTelemetry, setRawTelemetry] = useState<string>("");
+  // Rolling per-tick events with computed impact deltas, drives the
+  // TelemetryStream cards and the popover's recent-actions list.
+  const [events, setEvents] = useState<TelemetryEvent[]>([]);
 
   // High-density historical metrics database (used for Recharts Sparkline/chart visualizations)
   const [history, setHistory] = useState<Record<string, LeaderboardEntry[]>>({
@@ -177,6 +222,32 @@ export function useTelemetry() {
     if (known.includes(target as CorpId) && target !== sender) ids.push(target as CorpId);
     return ids;
   }
+
+  // Append a structured event with computed deltas. Skips when the
+  // telemetry is identical to the previous frame's (handles WS re-sends).
+  const pushEvent = useCallback((
+    tick: number,
+    telemetry: LastTelemetry,
+    nextLeaderboard: Leaderboard,
+    prevLeaderboard: Leaderboard,
+  ) => {
+    setEvents((prev) => {
+      // Drop dupes (same tick, same action) — happens on initial-frame echo.
+      if (prev.length && prev[prev.length - 1].tick === tick && prev[prev.length - 1].telemetry.reason === telemetry.reason) {
+        return prev;
+      }
+      const event: TelemetryEvent = {
+        id: `${tick}-${Date.now()}-${Math.random()}`,
+        tick,
+        timestamp: new Date().toLocaleTimeString(),
+        telemetry,
+        deltas: computeDeltas(nextLeaderboard, prevLeaderboard),
+        isChaos: telemetry.sender === "Chaos_Operator" || telemetry.action === "CHAOS",
+      };
+      const next = [...prev, event];
+      return next.length > EVENT_HISTORY_CAP ? next.slice(-EVENT_HISTORY_CAP) : next;
+    });
+  }, []);
 
   // Update history database
   const updateHistory = useCallback((currentLeaderboard: Leaderboard) => {
@@ -260,12 +331,15 @@ export function useTelemetry() {
         corpsFromTelemetry(mockEvent.sender, mockEvent.target),
       );
 
+      // Push structured event with computed deltas (impact view).
+      pushEvent(nextTick, nextPayload.last_telemetry, nextLeaderboard, prev.leaderboard);
+
       // Update historical track
       updateHistory(nextLeaderboard);
 
       return nextPayload;
     });
-  }, [addLog, updateHistory]);
+  }, [addLog, updateHistory, pushEvent]);
 
   // Connect WebSocket function
   const connectWS = useCallback(() => {
@@ -295,7 +369,14 @@ export function useTelemetry() {
 
           // Verify telemetry state conforms to expected format
           if (payload && typeof payload.tick === "number") {
-            setState(payload);
+            // Capture the previous leaderboard inline so we can compute
+            // per-tick deltas for the impact view.
+            setState((prev) => {
+              if (payload.last_telemetry && payload.leaderboard) {
+                pushEvent(payload.tick, payload.last_telemetry, payload.leaderboard, prev.leaderboard);
+              }
+              return payload;
+            });
             setRawTelemetry(JSON.stringify(payload, null, 2));
 
             // Human-readable activity line — same formatter used by chaos
@@ -346,7 +427,7 @@ export function useTelemetry() {
         mockTickerRef.current = setInterval(runMockTick, 3000);
       }
     }
-  }, [addLog, runMockTick, updateHistory]);
+  }, [addLog, runMockTick, updateHistory, pushEvent]);
 
   // Handle manual queries and trigger requests
   const triggerChaos = useCallback(async () => {
@@ -464,6 +545,7 @@ export function useTelemetry() {
     history,
     connectionStatus,
     logs,
+    events,
     rawTelemetry,
     triggerChaos,
     triggerCustomChaos,

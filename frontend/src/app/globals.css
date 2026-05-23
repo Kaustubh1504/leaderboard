@@ -100,13 +100,13 @@ html, body {
 }
 
 .header-title {
-  font-size: 26px;
+  font-size: 32px;
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.18em;
   background: linear-gradient(135deg, #ffffff 0%, #00f0ff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
 }
 
 .status-badge {
@@ -1030,6 +1030,318 @@ html, body {
   padding: 2px 7px;
   border-radius: 4px;
   flex-shrink: 0;
+}
+
+/* --- TelemetryStream — human-readable activity cards ----------------- */
+.telemetry-cards {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #03050a;
+}
+
+.telemetry-card {
+  background: rgba(13, 21, 39, 0.78);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--font-sans);
+  position: relative;
+}
+
+.telemetry-card.is-chaos {
+  border-color: rgba(255, 7, 58, 0.5);
+  background: rgba(40, 10, 18, 0.45);
+  box-shadow: 0 0 12px rgba(255, 7, 58, 0.18);
+}
+
+.telemetry-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.telemetry-card-head .tick-label {
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.chaos-pill {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(255, 7, 58, 0.18);
+  border: 1px solid var(--accent-red);
+  color: var(--accent-red);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.telemetry-card-body {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.action-arrow {
+  color: var(--text-muted);
+}
+
+.telemetry-card-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.action-verb {
+  font-family: var(--font-mono);
+  text-transform: lowercase;
+  color: var(--accent-green);
+}
+
+.conf-pill {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-secondary);
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(26, 38, 63, 0.6);
+  border: 1px solid var(--border-color);
+}
+
+.telemetry-card-reason {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.reason-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}
+
+.reason-text {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  word-break: break-word;
+}
+
+.telemetry-card-impact {
+  border-top: 1px dashed rgba(26, 38, 63, 0.6);
+  padding-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.impact-header {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+}
+
+.impact-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.impact-badges {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.impact-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.impact-badge.good {
+  background: rgba(57, 255, 14, 0.12);
+  border: 1px solid rgba(57, 255, 14, 0.4);
+  color: var(--accent-green);
+}
+
+.impact-badge.bad {
+  background: rgba(255, 7, 58, 0.12);
+  border: 1px solid rgba(255, 7, 58, 0.4);
+  color: var(--accent-red);
+}
+
+.impact-label {
+  opacity: 0.75;
+}
+
+.impact-value {
+  font-weight: 700;
+}
+
+/* --- Corp brand tags (used in telemetry cards + popover) ------------ */
+.corp-tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 11px;
+  border: 1px solid currentColor;
+}
+
+.corp-tag.compact {
+  font-size: 10px;
+  padding: 0 6px;
+}
+
+.corp-tag.corp-google {
+  color: var(--accent-cyan);
+  background: rgba(0, 240, 255, 0.08);
+}
+.corp-tag.corp-openai {
+  color: var(--accent-green);
+  background: rgba(57, 255, 14, 0.08);
+}
+.corp-tag.corp-anthropic {
+  color: var(--accent-purple);
+  background: rgba(189, 0, 255, 0.10);
+}
+.corp-tag.corp-chaos_operator {
+  color: var(--accent-red);
+  background: rgba(255, 7, 58, 0.10);
+}
+
+/* --- Corp popover: trend + recent-activity sections ------------------- */
+.corp-popover-trends {
+  border-top: 1px solid var(--border-color);
+  padding-top: 8px;
+  margin-top: 8px;
+}
+.corp-popover-trends-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.corp-popover-trends-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+.trend.up {
+  background: rgba(57, 255, 14, 0.12);
+  color: var(--accent-green);
+}
+.trend.down {
+  background: rgba(255, 7, 58, 0.12);
+  color: var(--accent-red);
+}
+.trend.flat {
+  background: rgba(26, 38, 63, 0.4);
+  color: var(--text-muted);
+}
+.trend-value {
+  font-weight: 700;
+}
+.trend-label {
+  opacity: 0.7;
+}
+
+.corp-popover-recent-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  padding: 2px 0;
+  border-bottom: 1px dashed rgba(26, 38, 63, 0.4);
+}
+.corp-popover-recent-row:last-child {
+  border-bottom: none;
+}
+.corp-popover-recent-tick {
+  color: var(--accent-cyan);
+  font-size: 10px;
+  min-width: 28px;
+}
+.corp-popover-recent-dir {
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+.corp-popover-recent-reason-mini {
+  color: var(--text-muted);
+  font-size: 10px;
+  margin-left: auto;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- ReactFlow Controls (dark theme) ---------------------------------- */
+.react-flow__controls {
+  background: rgba(8, 13, 26, 0.92);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+.react-flow__controls-button {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--accent-cyan);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.react-flow__controls-button:hover {
+  background: rgba(0, 240, 255, 0.12);
+}
+.react-flow__controls-button:last-child {
+  border-bottom: none;
+}
+.react-flow__controls-button svg {
+  fill: var(--accent-cyan);
+  width: 12px;
+  height: 12px;
 }
 
 /* --- Graph maximize button -------------------------------------------- */
