@@ -42,6 +42,10 @@ async def loop() -> None:
     while True:
         tick_start = loop_clock.time()
         try:
+            # Age out any chaos debuffs first so this tick's decision is
+            # scaled against the freshly-decremented multiplier set.
+            state.tick_multipliers()
+
             if not CHAOS_QUEUE.empty():
                 event = await CHAOS_QUEUE.get()
                 await _apply_chaos(event)
@@ -101,7 +105,10 @@ def _kick_inflight(agent: AgentId, panic: bool) -> None:
 
 
 async def _apply_chaos(event: ChaosEvent) -> None:
-    state.apply_impacts(event.metric_impact)
+    # Chaos always lands at full force, regardless of any existing multiplier
+    # on the target — the multiplier only dampens subsequent agent decisions.
+    state.apply_impacts(event.metric_impact, scaled=False)
+    state.add_multiplier(event.target, source=event.name)
     state.set_active(event.target, source=AgentId.CHAOS)
     state.set_telemetry(
         Telemetry(

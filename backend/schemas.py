@@ -88,6 +88,18 @@ class Telemetry(BaseModel):
     patch_size_kb: int
 
 
+class ChaosMultiplier(BaseModel):
+    """Persistent debuff applied to a target after a chaos event.
+
+    factor scales every metric_impact delta on this target. ticks_remaining
+    decrements on each tick and the entry is dropped when it hits 0.
+    """
+    target: AgentId
+    factor: float = Field(..., gt=0.0, le=1.0)
+    ticks_remaining: int = Field(..., ge=0)
+    source: str = Field(..., max_length=120)
+
+
 class StatePayload(BaseModel):
     """The full state broadcast over /ws/telemetry on every tick."""
     tick: int
@@ -95,3 +107,4 @@ class StatePayload(BaseModel):
     leaderboard: dict[str, HackerStats]
     graph_edges: list[GraphEdge]
     last_telemetry: Optional[Telemetry] = None
+    chaos_multipliers: list[ChaosMultiplier] = Field(default_factory=list)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from .schemas import (
     AgentId,
+    ChaosMultiplier,
     GraphEdge,
     HackerStats,
     MetricImpact,
@@ -12,6 +13,10 @@ from .schemas import (
 )
 
 HACKER_IDS = [AgentId.HACKER_1, AgentId.HACKER_2, AgentId.HACKER_3, AgentId.HACKER_4]
+
+# Chaos debuff defaults: half-strength deltas for the next 4 ticks (~12s).
+DEFAULT_MULTIPLIER_FACTOR = 0.5
+DEFAULT_MULTIPLIER_TICKS = 4
 
 
 def _initial_leaderboard() -> dict[str, HackerStats]:
@@ -25,6 +30,9 @@ STATE: dict = {
     "leaderboard": _initial_leaderboard(),
     "graph_edges": [],
     "last_telemetry": None,
+    # Keyed by target.value so re-targeting the same agent refreshes the entry
+    # rather than stacking — keeps the debuff bounded and easy to render.
+    "chaos_multipliers": {},  # dict[str, ChaosMultiplier]
 }
 
 
@@ -36,19 +44,61 @@ def snapshot() -> StatePayload:
         leaderboard=STATE["leaderboard"],
         graph_edges=STATE["graph_edges"],
         last_telemetry=STATE["last_telemetry"],
+        chaos_multipliers=list(STATE["chaos_multipliers"].values()),
     )
 
 
-def apply_impacts(impacts: list[MetricImpact]) -> None:
-    """Apply signed metric deltas to the leaderboard, clamping to [0, 100]."""
+def apply_impacts(impacts: list[MetricImpact], scaled: bool = True) -> None:
+    """Apply signed metric deltas, clamping to [0, 100].
+
+    When scaled (the default), an active chaos multiplier on the target
+    dampens the delta — agents recover slowly from debuffs. Chaos events
+    themselves call with scaled=False so the damage always lands at full
+    force, regardless of any existing multiplier.
+    """
     for imp in impacts:
         row = STATE["leaderboard"].get(imp.target.value)
         if row is None:
             continue
-        row.velocity = _clamp(row.velocity + imp.velocity)
-        row.efficiency = _clamp(row.efficiency + imp.efficiency)
-        row.stability = _clamp(row.stability + imp.stability)
-        row.stress = _clamp(row.stress + imp.stress)
+        factor = _factor_for(imp.target) if scaled else 1.0
+        row.velocity = _clamp(row.velocity + _scale(imp.velocity, factor))
+        row.efficiency = _clamp(row.efficiency + _scale(imp.efficiency, factor))
+        row.stability = _clamp(row.stability + _scale(imp.stability, factor))
+        row.stress = _clamp(row.stress + _scale(imp.stress, factor))
+
+
+def add_multiplier(
+    target: AgentId,
+    source: str,
+    factor: float = DEFAULT_MULTIPLIER_FACTOR,
+    ticks: int = DEFAULT_MULTIPLIER_TICKS,
+) -> None:
+    """Install or refresh a chaos debuff on the given target."""
+    STATE["chaos_multipliers"][target.value] = ChaosMultiplier(
+        target=target, factor=factor, ticks_remaining=ticks, source=source,
+    )
+
+
+def tick_multipliers() -> None:
+    """Decrement every active multiplier; drop the ones that hit zero."""
+    expired = []
+    for key, mult in STATE["chaos_multipliers"].items():
+        mult.ticks_remaining -= 1
+        if mult.ticks_remaining <= 0:
+            expired.append(key)
+    for key in expired:
+        STATE["chaos_multipliers"].pop(key, None)
+
+
+def _factor_for(target: AgentId) -> float:
+    mult = STATE["chaos_multipliers"].get(target.value)
+    return mult.factor if mult else 1.0
+
+
+def _scale(delta: int, factor: float) -> int:
+    if factor == 1.0 or delta == 0:
+        return delta
+    return int(round(delta * factor))
 
 
 def set_active(agent: AgentId, source: AgentId | None = None) -> None:
