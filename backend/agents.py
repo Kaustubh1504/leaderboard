@@ -25,7 +25,10 @@ PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
 SEED_PATH = Path(__file__).resolve().parent.parent / "data" / "seed.json"
 
 MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-TIMEOUT_S = float(os.getenv("GEMINI_TIMEOUT_S", "1.2"))
+# Default budget is generous — for the REST endpoints that exist to surface a
+# real Gemini decision on demand. The tick loop passes its own tighter budget
+# so the 3s cadence stays intact (see tick.TICK_BUDGET_S).
+TIMEOUT_S = float(os.getenv("GEMINI_TIMEOUT_S", "8.0"))
 
 # Lazy client — None means seed-only mode (no API key, or import failed).
 _client = None
@@ -103,6 +106,7 @@ async def call_agent(
     agent: AgentId,
     state_snapshot: dict,
     panic: bool = False,
+    timeout: Optional[float] = None,
 ) -> AgentDecision:
     client = _get_client()
     if client is None:
@@ -122,7 +126,7 @@ async def call_agent(
                     temperature=0.9,
                 ),
             ),
-            timeout=TIMEOUT_S,
+            timeout=timeout if timeout is not None else TIMEOUT_S,
         )
         decision = _parse_decision(response)
         # Anti-spoof: Gemini occasionally signs decisions as the wrong agent.
@@ -135,7 +139,10 @@ async def call_agent(
     return _seed_decision(agent)
 
 
-async def call_chaos(state_snapshot: Optional[dict] = None) -> ChaosEvent:
+async def call_chaos(
+    state_snapshot: Optional[dict] = None,
+    timeout: Optional[float] = None,
+) -> ChaosEvent:
     client = _get_client()
     if client is None:
         return _seed_chaos()
@@ -154,7 +161,7 @@ async def call_chaos(state_snapshot: Optional[dict] = None) -> ChaosEvent:
                     temperature=1.0,
                 ),
             ),
-            timeout=TIMEOUT_S,
+            timeout=timeout if timeout is not None else TIMEOUT_S,
         )
         return _parse_chaos(response)
     except (asyncio.TimeoutError, ValidationError) as e:
