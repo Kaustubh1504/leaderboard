@@ -182,6 +182,10 @@ html, body {
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  /* min-height:0 lets this flex item shrink below its content size so the
+     inner scroll containers handle overflow instead of pushing the column
+     (and the rest of the page) downward. */
+  min-height: 0;
 }
 
 .panel-header {
@@ -210,6 +214,10 @@ html, body {
   position: relative;
   display: flex;
   flex-direction: column;
+  /* Same min-height:0 trick — without it, a flex item with flex:1
+     refuses to shrink past its content's intrinsic height and the
+     scroll never engages on the child. */
+  min-height: 0;
 }
 
 /* Chaos Button */
@@ -355,6 +363,10 @@ html, body {
   background: #03050a;
   border-top: 1px solid var(--border-color);
   flex: 1;
+  /* min-height:0 is what actually engages the overflow-y scroll on this
+     box. Without it the CHAOS LOG just grew and pushed the column down
+     each tick instead of scrolling internally. */
+  min-height: 0;
   overflow-y: auto;
   padding: 12px;
   font-family: var(--font-mono);
@@ -1035,6 +1047,7 @@ html, body {
 /* --- TelemetryStream — human-readable activity cards ----------------- */
 .telemetry-cards {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 10px;
   display: flex;
