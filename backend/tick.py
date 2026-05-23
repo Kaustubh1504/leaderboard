@@ -56,8 +56,11 @@ async def loop() -> None:
         tick_start = loop_clock.time()
         try:
             # Age out any chaos debuffs first so this tick's decision is
-            # scaled against the freshly-decremented multiplier set.
+            # scaled against the freshly-decremented multiplier set, then
+            # apply passive drift so the corp's metric_impact visibly
+            # counteracts it on the dashboard.
             state.tick_multipliers()
+            state.apply_decay()
 
             if not CHAOS_QUEUE.empty():
                 event = await CHAOS_QUEUE.get()
