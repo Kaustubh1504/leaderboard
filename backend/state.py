@@ -78,6 +78,19 @@ def apply_impacts(impacts: list[MetricImpact], scaled: bool = True) -> None:
         row.market_share = _clamp(row.market_share + _scale(imp.market_share, factor), "market_share")
 
 
+def apply_decay() -> None:
+    """Passive per-tick drift for every corp. Runs before the corp's decision
+    so the decision's metric_impact visibly counteracts drift on the dashboard.
+
+    Stock_value is intentionally left untouched — it's market-driven by corp
+    actions and chaos events, not by passive operational pressure.
+    """
+    for row in STATE["leaderboard"].values():
+        row.cash_reserves = _clamp(row.cash_reserves - 1, "cash_reserves")
+        row.public_sentiment = _clamp(row.public_sentiment - 1, "public_sentiment")
+        row.market_share = _clamp(row.market_share - 1, "market_share")
+
+
 def set_active(corp: CorpId, source: CorpId | None = None) -> None:
     """Mark a corp active and draw the animated edge from its source."""
     STATE["active_agent"] = corp
