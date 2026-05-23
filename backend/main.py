@@ -7,10 +7,16 @@ import logging
 
 from fastapi import FastAPI, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 
 from . import state, tick, ws
 from .agents import call_agent, call_chaos
 from .schemas import CorpId
+
+
+class ChaosInjectRequest(BaseModel):
+    """Body for POST /api/chaos/inject — Operator-supplied chaos framing."""
+    prompt: str = Field(..., min_length=1, max_length=240)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -41,6 +47,17 @@ async def get_state():
 @app.post("/api/chaos/trigger")
 async def trigger_chaos():
     event = await call_chaos(state.STATE)
+    await tick.queue_chaos(event)
+    return event.model_dump()
+
+
+@app.post("/api/chaos/inject")
+async def inject_chaos(req: ChaosInjectRequest):
+    """Operator-supplied chaos. Gemini still produces a valid ChaosEvent;
+    the user's prompt steers the framing. When Gemini is unavailable, the
+    seed fallback uses the prompt as the event name so the dashboard still
+    reflects the Operator's intent."""
+    event = await call_chaos(state.STATE, user_prompt=req.prompt)
     await tick.queue_chaos(event)
     return event.model_dump()
 
