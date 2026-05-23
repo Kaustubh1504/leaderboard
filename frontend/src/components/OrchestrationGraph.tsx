@@ -15,15 +15,15 @@ import { TelemetryState } from "../lib/ws";
 
 // Custom node rendering component to bypass default styles
 const CustomNodeComponent = ({ data, id }: any) => {
-  const isChaos = id === "Chaos_Agent";
-  
+  const isChaos = id === "Chaos_Operator";
+
   return (
     <div
       className={`custom-node ${isChaos ? "chaos-agent-node" : ""} ${
         data.isActive ? (isChaos ? "active-chaos" : "active-hacker") : ""
       }`}
     >
-      {/* Top handles */}
+      {/* Top handle (corps only) */}
       {!isChaos && (
         <Handle
           type="target"
@@ -31,11 +31,11 @@ const CustomNodeComponent = ({ data, id }: any) => {
           style={{ background: "var(--accent-cyan)", width: 6, height: 6, border: "none" }}
         />
       )}
-      
+
       <div className="node-name" style={{ fontWeight: "700" }}>{data.label}</div>
       <div className="node-role">{data.role}</div>
 
-      {/* Bottom handles */}
+      {/* Bottom handle */}
       <Handle
         type="source"
         position={Position.Bottom}
@@ -45,7 +45,6 @@ const CustomNodeComponent = ({ data, id }: any) => {
   );
 };
 
-// Custom Node Types registered with React Flow
 const nodeTypes = {
   custom: CustomNodeComponent,
 };
@@ -54,49 +53,43 @@ interface OrchestrationGraphProps {
   state: TelemetryState;
 }
 
+// Layout: Chaos Operator at center, 3 corps arranged around it (per CLAUDE.md).
 const STATIC_NODES: Node[] = [
   {
-    id: "Chaos_Agent",
+    id: "Chaos_Operator",
     type: "custom",
-    position: { x: 230, y: 20 },
-    data: { label: "Chaos_Agent", role: "Disaster Injector", isActive: false },
+    position: { x: 230, y: 170 },
+    data: { label: "Chaos_Operator", role: "Macro Shock Generator", isActive: false },
   },
   {
-    id: "Agent_Hacker_1",
+    id: "NexusCorp",
     type: "custom",
-    position: { x: 30, y: 150 },
-    data: { label: "Agent_Hacker_1", role: "Frontend / Data Viz", isActive: false },
+    position: { x: 30, y: 30 },
+    data: { label: "NexusCorp", role: "Market Leader", isActive: false },
   },
   {
-    id: "Agent_Hacker_2",
+    id: "VertexAI",
     type: "custom",
-    position: { x: 430, y: 150 },
-    data: { label: "Agent_Hacker_2", role: "Server / Gemini Loop", isActive: false },
+    position: { x: 430, y: 30 },
+    data: { label: "VertexAI", role: "Aggressive Challenger", isActive: false },
   },
   {
-    id: "Agent_Hacker_3",
+    id: "ShadowScale",
     type: "custom",
-    position: { x: 90, y: 290 },
-    data: { label: "Agent_Hacker_3", role: "State & Socket Brokering", isActive: false },
-  },
-  {
-    id: "Agent_Hacker_4",
-    type: "custom",
-    position: { x: 370, y: 290 },
-    data: { label: "Agent_Hacker_4", role: "Prompts & Fallbacks", isActive: false },
+    position: { x: 230, y: 320 },
+    data: { label: "ShadowScale", role: "Guerilla Disruptor", isActive: false },
   },
 ];
 
 const STATIC_EDGES: Edge[] = [
-  // Chaos links
-  { id: "e-chaos-h1", source: "Chaos_Agent", target: "Agent_Hacker_1", animated: false },
-  { id: "e-chaos-h2", source: "Chaos_Agent", target: "Agent_Hacker_2", animated: false },
-  { id: "e-chaos-h3", source: "Chaos_Agent", target: "Agent_Hacker_3", animated: false },
-  { id: "e-chaos-h4", source: "Chaos_Agent", target: "Agent_Hacker_4", animated: false },
-  // Data pipe flows
-  { id: "e-h4-h2", source: "Agent_Hacker_4", target: "Agent_Hacker_2", animated: false },
-  { id: "e-h2-h3", source: "Agent_Hacker_2", target: "Agent_Hacker_3", animated: false },
-  { id: "e-h3-h1", source: "Agent_Hacker_3", target: "Agent_Hacker_1", animated: false },
+  // Chaos -> each corp (the macro shock channels).
+  { id: "e-chaos-nexus",  source: "Chaos_Operator", target: "NexusCorp",   animated: false },
+  { id: "e-chaos-vertex", source: "Chaos_Operator", target: "VertexAI",    animated: false },
+  { id: "e-chaos-shadow", source: "Chaos_Operator", target: "ShadowScale", animated: false },
+  // Corp-to-corp competitive flow (triangle).
+  { id: "e-nexus-vertex",  source: "NexusCorp",   target: "VertexAI",    animated: false },
+  { id: "e-vertex-shadow", source: "VertexAI",    target: "ShadowScale", animated: false },
+  { id: "e-shadow-nexus",  source: "ShadowScale", target: "NexusCorp",   animated: false },
 ];
 
 export const OrchestrationGraph: React.FC<OrchestrationGraphProps> = ({ state }) => {
@@ -111,13 +104,13 @@ export const OrchestrationGraph: React.FC<OrchestrationGraphProps> = ({ state })
     return STATIC_NODES.map((node) => {
       let isActive = false;
 
-      if (node.id === "Chaos_Agent") {
-        // Chaos agent is active if last sender is Chaos_Agent or active agent is Chaos_Agent
+      if (node.id === "Chaos_Operator") {
+        // Chaos is active if last sender is the Operator or active_agent is Chaos.
         isActive =
-          state.active_agent === "Chaos_Agent" ||
-          state.last_telemetry?.sender === "Chaos_Agent";
+          state.active_agent === "Chaos_Operator" ||
+          state.last_telemetry?.sender === "Chaos_Operator" ||
+          state.last_telemetry?.action === "CHAOS";
       } else {
-        // Hacker agent is active if it's the active_agent
         isActive = state.active_agent === node.id;
       }
 
@@ -136,26 +129,25 @@ export const OrchestrationGraph: React.FC<OrchestrationGraphProps> = ({ state })
       let isAnimated = false;
       let className = "";
 
-      // Check if this edge was explicitly marked as animated in telemetry
+      // Backend payload explicitly marks the active edge as animated.
       const payloadAnimate = state.graph_edges?.some(
         (ge) => ge.source === edge.source && ge.target === edge.target && ge.animated
       );
 
-      // If active sender/target match this edge
+      // Heuristic: animate if last telemetry sender/target match this edge.
       const stateMatch =
         state.last_telemetry?.sender === edge.source &&
         state.last_telemetry?.target === edge.target;
 
-      // Animate if active agent matches target of chaos link
+      // Animate the chaos channel landing on whoever the chaos is hitting.
       const chaosLinkMatch =
-        edge.source === "Chaos_Agent" && edge.target === state.active_agent;
+        edge.source === "Chaos_Operator" && edge.target === state.active_agent;
 
       if (payloadAnimate || stateMatch || chaosLinkMatch) {
         isAnimated = true;
       }
 
-      // Add special class for chaos animation vs regular flow animation
-      if (edge.source === "Chaos_Agent" && isAnimated) {
+      if (edge.source === "Chaos_Operator" && isAnimated) {
         className = "chaos-active";
       }
 
