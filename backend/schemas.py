@@ -118,3 +118,23 @@ class StatePayload(BaseModel):
     graph_edges: list[GraphEdge]
     last_telemetry: Optional[Telemetry] = None
     chaos_multipliers: list[ChaosMultiplier] = Field(default_factory=list)
+
+
+# --- Token usage ledger (powers the post-mortem panel) ------------------- #
+
+class TokenUsage(BaseModel):
+    """Aggregated Gemini token usage attributable to one source (corp or chaos)."""
+    source: str  # corp name (e.g. "NexusCorp") or "Chaos_Operator"
+    calls: int = 0
+    input_tokens: int = 0
+    output_tokens: int = 0
+    last_call_at: Optional[float] = None  # epoch seconds; None if no calls yet
+
+
+class UsageLedger(BaseModel):
+    """Snapshot of all Gemini token spend since server start."""
+    model: str  # which Gemini model is being charged
+    total_calls: int = 0
+    total_input_tokens: int = 0
+    total_output_tokens: int = 0
+    by_source: list[TokenUsage] = Field(default_factory=list)

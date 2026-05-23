@@ -17,6 +17,7 @@ from typing import Optional
 
 from pydantic import ValidationError
 
+from . import usage
 from .schemas import AgentDecision, ChaosEvent, CorpId
 
 log = logging.getLogger("agents")
@@ -131,6 +132,7 @@ async def call_agent(
             timeout=timeout if timeout is not None else TIMEOUT_S,
         )
         decision = _parse_decision(response)
+        usage.record(corp.value, *usage.extract_usage(response))
         # Anti-spoof: Gemini occasionally signs decisions as the wrong corp.
         decision.sender = corp
         return decision
@@ -165,7 +167,9 @@ async def call_chaos(
             ),
             timeout=timeout if timeout is not None else TIMEOUT_S,
         )
-        return _parse_chaos(response)
+        event = _parse_chaos(response)
+        usage.record(CorpId.CHAOS.value, *usage.extract_usage(response))
+        return event
     except (asyncio.TimeoutError, ValidationError) as e:
         log.warning("call_chaos fallback: %s", e)
     except Exception as e:

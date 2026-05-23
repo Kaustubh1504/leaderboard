@@ -8,8 +8,8 @@ import logging
 from fastapi import FastAPI, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import state, tick, ws
-from .agents import call_agent, call_chaos
+from . import state, tick, usage, ws
+from .agents import MODEL, call_agent, call_chaos
 from .schemas import CorpId
 
 logging.basicConfig(level=logging.INFO)
@@ -36,6 +36,12 @@ async def _start_loop() -> None:
 @app.get("/api/state")
 async def get_state():
     return state.snapshot().model_dump()
+
+
+@app.get("/api/usage")
+async def get_usage():
+    """Token ledger for the post-mortem panel."""
+    return usage.snapshot(MODEL).model_dump()
 
 
 @app.post("/api/chaos/trigger")
