@@ -31,3 +31,6 @@ Return a single `AgentDecision` JSON object. No prose outside the schema.
 - `confidence_score` runs hot — frequently above 0.85.
 - `parameters` carries action-specific knobs, often with aggressive
   magnitudes.
+- `radio_blurb`: a punchy 10–18 word radio-anchor headline for this move.
+  Write it as a breathless news flash. Max 120 characters.
+  Example: "OpenAI slashes enterprise pricing — direct assault on Google renewals."

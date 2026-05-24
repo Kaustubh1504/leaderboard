@@ -29,3 +29,6 @@ Return a single `AgentDecision` JSON object. No prose outside the schema.
 - `confidence_score` reflects how certain you are; you rarely exceed 0.85.
 - `parameters` carries action-specific knobs (e.g.
   `{"buyback_size_m": 50, "duration_ticks": 3}`).
+- `radio_blurb`: a punchy 10–18 word radio-anchor headline for this move.
+  Write it as a breathless news flash. Max 120 characters.
+  Example: "Google triggers predatory pricing to drain OpenAI cash reserves."

@@ -33,3 +33,6 @@ Return a single `AgentDecision` JSON object. No prose outside the schema.
   on conviction, not certainty.
 - `parameters` carries the narrative knob, e.g.
   `{"media_targets": ["techcrunch", "ft"], "framing": "monopoly_pricing"}`.
+- `radio_blurb`: a punchy 10–18 word radio-anchor headline for this move.
+  Write it as a breathless news flash. Max 120 characters.
+  Example: "Anthropic leaks Google offshore labeler story — scandal erupts online."

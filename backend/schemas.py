@@ -57,6 +57,7 @@ class AgentDecision(BaseModel):
     # Free-form action parameters (e.g. {"margin_reduction": 0.15, "duration_ticks": 4}).
     parameters: Dict[str, Any] = Field(default_factory=dict)
     metric_impact: list[MetricImpact]
+    radio_blurb: str = Field(..., max_length=120)
 
 
 class ChaosEvent(BaseModel):
@@ -65,6 +66,7 @@ class ChaosEvent(BaseModel):
     description: str = Field(..., max_length=500)
     target: CorpId  # the corp that takes the brunt; ripples land via metric_impact
     metric_impact: list[MetricImpact]
+    radio_blurb: str = Field(..., max_length=120)
 
 
 # --- Leaderboard / state payload ----------------------------------------- #
@@ -96,6 +98,7 @@ class Telemetry(BaseModel):
     reason: str = Field(..., max_length=240)
     confidence_score: float = Field(..., ge=0.0, le=1.0)
     parameters: Dict[str, Any] = Field(default_factory=dict)
+    radio_blurb: str = Field("", max_length=120)
 
 
 class ChaosMultiplier(BaseModel):

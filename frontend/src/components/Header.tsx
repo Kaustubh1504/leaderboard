@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Flame, Activity, Info, Shuffle } from "lucide-react";
+import { Flame, Activity, Info, Shuffle, Volume2, VolumeX } from "lucide-react";
 import { RANDOM_CHAOS_EXAMPLES } from "../lib/ws";
 
 interface HeaderProps {
@@ -9,6 +9,9 @@ interface HeaderProps {
   connectionStatus: "connecting" | "live" | "mocked";
   onTriggerRandomChaos: () => void;
   onOpenCustomChaos: () => void;
+  isMuted: boolean;
+  onToggleMute: () => void;
+  isSpeaking: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -16,6 +19,9 @@ export const Header: React.FC<HeaderProps> = ({
   connectionStatus,
   onTriggerRandomChaos,
   onOpenCustomChaos,
+  isMuted,
+  onToggleMute,
+  isSpeaking,
 }) => {
   const [infoOpen, setInfoOpen] = useState(false);
 
@@ -51,6 +57,18 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="tick-counter">
           SYSTEM_TICK: <span style={{ color: "#fff", fontWeight: "bold" }}>{tick}</span>
         </div>
+
+        <button
+          className="chaos-btn"
+          onClick={onToggleMute}
+          title={isMuted ? "Enable AI Talk Radio" : "Mute AI Talk Radio"}
+        >
+          {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          {isMuted ? "RADIO OFF" : "AI RADIO"}
+          {isSpeaking && !isMuted && (
+            <span style={{ animation: "pulse-glow 1s infinite", marginLeft: "4px" }}>LIVE</span>
+          )}
+        </button>
 
         {/* Random Chaos + hover-info tooltip listing example events */}
         <div

@@ -38,6 +38,7 @@ export interface LastTelemetry {
   reason: string;
   confidence_score: number;
   parameters: Record<string, unknown>;
+  radio_blurb?: string;
 }
 
 export interface ChaosMultiplier {
@@ -133,19 +134,20 @@ interface MockEvent {
   msg: string;
   sentimentImpact: number;
   shareImpact: number;
+  radio_blurb?: string;
 }
 
 const mockEvents: MockEvent[] = [
-  { sender: "OpenAI",    action: "predatory_pricing",   target: "Google",   reason: "flank_google_q4_enterprise_renewals", confidence_score: 0.88, msg: "OpenAI undercuts Google on enterprise inference pricing.", sentimentImpact: -6, shareImpact: -14 },
-  { sender: "Google",   action: "defensive_pivot",      target: "Google",   reason: "protect_q3_guidance",                confidence_score: 0.78, msg: "Google announces $50M buyback to defend Q3 guidance.",        sentimentImpact:  4, shareImpact:   0 },
-  { sender: "Anthropic", action: "narrative_campaign",   target: "Google",   reason: "google_offshore_labelers_leak",       confidence_score: 0.77, msg: "Anthropic leaks story about Google's offshore data labelers.", sentimentImpact: -12, shareImpact:  0 },
-  { sender: "OpenAI",    action: "rd_investment",        target: "OpenAI",    reason: "step_change_multimodal_model",       confidence_score: 0.91, msg: "OpenAI ships step-change multimodal model release.",          sentimentImpact:  9, shareImpact:   6 },
-  { sender: "Chaos_Operator", action: "CHAOS",             target: "Google",   reason: "EU AI Act Emergency Amendment",      confidence_score: 1.00, msg: "CHAOS: Brussels publishes emergency AI Act amendment overnight.", sentimentImpact: -20, shareImpact:  -8 },
-  { sender: "Google",   action: "acquire_competitor",   target: "Anthropic", reason: "anthropic_cash_collapse_window",        confidence_score: 0.74, msg: "Google floats all-stock offer for Anthropic.",             sentimentImpact:  0, shareImpact:  18 },
-  { sender: "Anthropic", action: "espionage",            target: "OpenAI",    reason: "openai_burn_rate_dossier",           confidence_score: 0.71, msg: "Anthropic recruits ex-OpenAI finance lead for burn-rate dossier.", sentimentImpact: -3, shareImpact:   5 },
-  { sender: "Chaos_Operator", action: "CHAOS",             target: "OpenAI",    reason: "TSMC Fab 22 Goes Offline",           confidence_score: 1.00, msg: "CHAOS: TSMC Fab 22 coolant failure cuts GPU allocation 6 weeks.", sentimentImpact:  0, shareImpact: -22 },
-  { sender: "Google",   action: "narrative_campaign",   target: "OpenAI",    reason: "highlight_openai_burn_rate",         confidence_score: 0.76, msg: "Google briefs analysts on OpenAI's unsustainable burn rate.", sentimentImpact: -8, shareImpact:   0 },
-  { sender: "OpenAI",    action: "predatory_pricing",    target: "Anthropic", reason: "squeeze_anthropic_smb_segment",         confidence_score: 0.82, msg: "OpenAI launches aggressive SMB pricing tier — squeezes Anthropic.", sentimentImpact: 0, shareImpact:  -9 },
+  { sender: "OpenAI",    action: "predatory_pricing",   target: "Google",   reason: "flank_google_q4_enterprise_renewals", confidence_score: 0.88, msg: "OpenAI undercuts Google on enterprise inference pricing.", sentimentImpact: -6, shareImpact: -14, radio_blurb: "OpenAI slashes enterprise pricing — direct assault on Google renewals!" },
+  { sender: "Google",   action: "defensive_pivot",      target: "Google",   reason: "protect_q3_guidance",                confidence_score: 0.78, msg: "Google announces $50M buyback to defend Q3 guidance.",        sentimentImpact:  4, shareImpact:   0, radio_blurb: "Google locks the vault — fifty million buyback to shield Q3!" },
+  { sender: "Anthropic", action: "narrative_campaign",   target: "Google",   reason: "google_offshore_labelers_leak",       confidence_score: 0.77, msg: "Anthropic leaks story about Google's offshore data labelers.", sentimentImpact: -12, shareImpact:  0, radio_blurb: "Anthropic leaks Google offshore labeler story — scandal erupts!" },
+  { sender: "OpenAI",    action: "rd_investment",        target: "OpenAI",    reason: "step_change_multimodal_model",       confidence_score: 0.91, msg: "OpenAI ships step-change multimodal model release.",          sentimentImpact:  9, shareImpact:   6, radio_blurb: "OpenAI ships step-change multimodal model — markets surge!" },
+  { sender: "Chaos_Operator", action: "CHAOS",             target: "Google",   reason: "EU AI Act Emergency Amendment",      confidence_score: 1.00, msg: "CHAOS: Brussels publishes emergency AI Act amendment overnight.", sentimentImpact: -20, shareImpact:  -8, radio_blurb: "Breaking — Brussels drops midnight AI Act bomb, deals frozen!" },
+  { sender: "Google",   action: "acquire_competitor",   target: "Anthropic", reason: "anthropic_cash_collapse_window",        confidence_score: 0.74, msg: "Google floats all-stock offer for Anthropic.",             sentimentImpact:  0, shareImpact:  18, radio_blurb: "Google floats all-stock takeover bid for cash-strapped Anthropic!" },
+  { sender: "Anthropic", action: "espionage",            target: "OpenAI",    reason: "openai_burn_rate_dossier",           confidence_score: 0.71, msg: "Anthropic recruits ex-OpenAI finance lead for burn-rate dossier.", sentimentImpact: -3, shareImpact:   5, radio_blurb: "Anthropic poaches OpenAI finance lead — burn rate dossier acquired!" },
+  { sender: "Chaos_Operator", action: "CHAOS",             target: "OpenAI",    reason: "TSMC Fab 22 Goes Offline",           confidence_score: 1.00, msg: "CHAOS: TSMC Fab 22 coolant failure cuts GPU allocation 6 weeks.", sentimentImpact:  0, shareImpact: -22, radio_blurb: "TSMC Fab 22 coolant failure — GPU supply slashed for six weeks!" },
+  { sender: "Google",   action: "narrative_campaign",   target: "OpenAI",    reason: "highlight_openai_burn_rate",         confidence_score: 0.76, msg: "Google briefs analysts on OpenAI's unsustainable burn rate.", sentimentImpact: -8, shareImpact:   0, radio_blurb: "Google briefs analysts — calls OpenAI burn rate unsustainable!" },
+  { sender: "OpenAI",    action: "predatory_pricing",    target: "Anthropic", reason: "squeeze_anthropic_smb_segment",         confidence_score: 0.82, msg: "OpenAI launches aggressive SMB pricing tier — squeezes Anthropic.", sentimentImpact: 0, shareImpact:  -9, radio_blurb: "OpenAI launches aggressive SMB tier — squeezing Anthropic hard!" },
 ];
 
 const EVENT_HISTORY_CAP = 30;
@@ -316,6 +318,7 @@ export function useTelemetry() {
           reason: mockEvent.reason,
           confidence_score: mockEvent.confidence_score,
           parameters: {},
+          radio_blurb: mockEvent.radio_blurb,
         },
         chaos_multipliers: prev.chaos_multipliers,
       };

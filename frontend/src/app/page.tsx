@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CorpId, useTelemetry } from "../lib/ws";
+import { useRadioQueue } from "../lib/useRadioQueue";
 import { Header } from "../components/Header";
 import { Leaderboard } from "../components/Leaderboard";
 import { ChaosFeed } from "../components/ChaosFeed";
@@ -22,6 +23,11 @@ export default function Home() {
     triggerCustomChaos,
     queryAgent,
   } = useTelemetry();
+
+  const { isSpeaking, isMuted, toggleMute } = useRadioQueue(
+    state.last_telemetry,
+    state.tick,
+  );
 
   // UI state lives here so layout reflows when panes collapse / graph maximizes.
   const [leftCollapsed, setLeftCollapsed] = useState(false);
@@ -51,6 +57,9 @@ export default function Home() {
         connectionStatus={connectionStatus}
         onTriggerRandomChaos={triggerChaos}
         onOpenCustomChaos={() => setCustomChaosOpen(true)}
+        isMuted={isMuted}
+        onToggleMute={toggleMute}
+        isSpeaking={isSpeaking}
       />
 
       <main className={gridClass}>

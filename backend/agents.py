@@ -328,7 +328,7 @@ def _seed_summary(history_snap: dict, state_snapshot: dict) -> PostmortemSummary
         return row.stock_value if hasattr(row, "stock_value") else int(row.get("stock_value", 0))
 
     corps = []
-    for corp in (CorpId.NEXUSCORP, CorpId.VERTEXAI, CorpId.SHADOWSCALE):
+    for corp in (CorpId.GOOGLE, CorpId.OPENAI, CorpId.ANTHROPIC):
         corp_decisions = [d for d in decisions if d.sender == corp]
         if not corp_decisions:
             continue

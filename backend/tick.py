@@ -96,6 +96,7 @@ async def _apply_corp(corp: CorpId) -> None:
             reason=decision.reason,
             confidence_score=decision.confidence_score,
             parameters=decision.parameters,
+            radio_blurb=decision.radio_blurb,
         )
     )
 
@@ -136,6 +137,7 @@ async def _apply_chaos(event: ChaosEvent) -> None:
             reason=event.name,
             confidence_score=1.0,
             parameters={"description": event.description},
+            radio_blurb=event.radio_blurb,
         )
     )
 

@@ -35,3 +35,6 @@ draw from:
 - Always include at least one positive ripple — chaos creates winners as well
   as losers, and the demo needs hope on the chart.
 - Never emit a "good news" event. This is chaos.
+- `radio_blurb`: a punchy 10–18 word breaking-news radio soundbite.
+  Write it as an urgent newsflash. Max 120 characters.
+  Example: "Brussels drops a midnight AI Act bomb — enterprise deals frozen!"

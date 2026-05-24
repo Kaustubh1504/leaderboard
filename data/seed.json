@@ -9,7 +9,8 @@
       "parameters": {"buyback_size_m": 50, "duration_ticks": 3},
       "metric_impact": [
         {"target": "Google", "stock_value": 8, "cash_reserves": -10, "public_sentiment": 4, "market_share": 0}
-      ]
+      ],
+      "radio_blurb": "Google locks the vault — fifty million buyback to shield Q3 guidance!"
     },
     {
       "sender": "Google",
@@ -20,7 +21,8 @@
       "parameters": {"capex_m": 75, "horizon_ticks": 6},
       "metric_impact": [
         {"target": "Google", "stock_value": 6, "cash_reserves": -12, "public_sentiment": 3, "market_share": 5}
-      ]
+      ],
+      "radio_blurb": "Google pours seventy-five million into Gemini inference — enterprise push accelerates!"
     },
     {
       "sender": "Google",
@@ -32,7 +34,8 @@
       "metric_impact": [
         {"target": "Google", "public_sentiment": 7, "cash_reserves": -4},
         {"target": "Anthropic", "public_sentiment": -6}
-      ]
+      ],
+      "radio_blurb": "Google hits back at Anthropic — WSJ op-ed questions the safety monopoly play!"
     },
     {
       "sender": "Google",
@@ -44,7 +47,8 @@
       "metric_impact": [
         {"target": "Google", "stock_value": -8, "cash_reserves": -25, "market_share": 18},
         {"target": "Anthropic", "stock_value": 12, "market_share": -18}
-      ]
+      ],
+      "radio_blurb": "Google floats an all-stock takeover bid for cash-strapped Anthropic!"
     },
     {
       "sender": "Google",
@@ -55,7 +59,8 @@
       "parameters": {"product_lines_cut": 2, "cost_save_m": 35},
       "metric_impact": [
         {"target": "Google", "stock_value": 4, "cash_reserves": 15, "market_share": -6, "public_sentiment": -3}
-      ]
+      ],
+      "radio_blurb": "Google axes two consumer product lines — thirty-five million in savings!"
     },
     {
       "sender": "Google",
@@ -66,7 +71,8 @@
       "parameters": {"capex_m": 120, "supplier": "tsmc_n2"},
       "metric_impact": [
         {"target": "Google", "stock_value": 10, "cash_reserves": -20, "market_share": 4}
-      ]
+      ],
+      "radio_blurb": "Google locks in TSMC next-gen node — hundred-twenty million TPU supply deal!"
     },
     {
       "sender": "Google",
@@ -78,7 +84,8 @@
       "metric_impact": [
         {"target": "Google", "public_sentiment": 5, "cash_reserves": -3},
         {"target": "OpenAI", "public_sentiment": -8, "stock_value": -5}
-      ]
+      ],
+      "radio_blurb": "Google briefs analysts — calls OpenAI burn rate unsustainable!"
     },
     {
       "sender": "OpenAI",
@@ -90,7 +97,8 @@
       "metric_impact": [
         {"target": "OpenAI", "cash_reserves": -22, "market_share": 14, "stock_value": -4},
         {"target": "Google", "market_share": -14, "cash_reserves": -6}
-      ]
+      ],
+      "radio_blurb": "OpenAI slashes enterprise pricing eighteen percent — direct assault on Google!"
     },
     {
       "sender": "OpenAI",
@@ -102,7 +110,8 @@
       "metric_impact": [
         {"target": "OpenAI", "cash_reserves": -15, "market_share": 9},
         {"target": "Anthropic", "market_share": -9, "cash_reserves": -10}
-      ]
+      ],
+      "radio_blurb": "OpenAI launches aggressive SMB tier — squeezing Anthropic out of small business!"
     },
     {
       "sender": "OpenAI",
@@ -113,7 +122,8 @@
       "parameters": {"capex_m": 180, "release_window_ticks": 8},
       "metric_impact": [
         {"target": "OpenAI", "stock_value": 18, "cash_reserves": -28, "public_sentiment": 9, "market_share": 6}
-      ]
+      ],
+      "radio_blurb": "OpenAI drops a hundred eighty million on next-gen GPT — markets surge!"
     },
     {
       "sender": "OpenAI",
@@ -124,7 +134,8 @@
       "parameters": {"capex_m": 95, "supplier": "samsung_3gae"},
       "metric_impact": [
         {"target": "OpenAI", "stock_value": 8, "cash_reserves": -18, "market_share": 4}
-      ]
+      ],
+      "radio_blurb": "OpenAI tapes out custom silicon phase two — Samsung fab confirmed!"
     },
     {
       "sender": "OpenAI",
@@ -136,7 +147,8 @@
       "metric_impact": [
         {"target": "OpenAI", "stock_value": -6, "cash_reserves": -32, "market_share": 16},
         {"target": "Anthropic", "stock_value": 14, "market_share": -16}
-      ]
+      ],
+      "radio_blurb": "OpenAI moves to acquire Anthropic — thirty-five percent premium on the table!"
     },
     {
       "sender": "OpenAI",
@@ -148,7 +160,8 @@
       "metric_impact": [
         {"target": "OpenAI", "public_sentiment": 8, "cash_reserves": -5},
         {"target": "Google", "public_sentiment": -9, "stock_value": -4}
-      ]
+      ],
+      "radio_blurb": "OpenAI paints Google as yesterday's AI — stagnation narrative hits the press!"
     },
     {
       "sender": "OpenAI",
@@ -160,7 +173,8 @@
       "metric_impact": [
         {"target": "OpenAI", "market_share": 6, "public_sentiment": -3},
         {"target": "Google", "stock_value": -7, "public_sentiment": -2}
-      ]
+      ],
+      "radio_blurb": "OpenAI extracts Google pricing intel through compromised consultant!"
     },
     {
       "sender": "Anthropic",
@@ -172,7 +186,8 @@
       "metric_impact": [
         {"target": "Anthropic", "public_sentiment": 11, "cash_reserves": -4},
         {"target": "Google", "public_sentiment": -12, "stock_value": -6}
-      ]
+      ],
+      "radio_blurb": "Anthropic leaks Google offshore labeler story — labor scandal explodes online!"
     },
     {
       "sender": "Anthropic",
@@ -184,7 +199,8 @@
       "metric_impact": [
         {"target": "Anthropic", "public_sentiment": 9, "cash_reserves": -3},
         {"target": "OpenAI", "public_sentiment": -10, "stock_value": -5}
-      ]
+      ],
+      "radio_blurb": "Anthropic torches OpenAI credibility — Q3 earnings promises under fire!"
     },
     {
       "sender": "Anthropic",
@@ -195,7 +211,8 @@
       "parameters": {"venues": ["substack", "youtube_long_form"], "framing": "asymmetric_innovator"},
       "metric_impact": [
         {"target": "Anthropic", "public_sentiment": 13, "cash_reserves": -6, "market_share": 3}
-      ]
+      ],
+      "radio_blurb": "Anthropic doubles down on responsible AI branding — public sentiment surging!"
     },
     {
       "sender": "Anthropic",
@@ -207,7 +224,8 @@
       "metric_impact": [
         {"target": "Anthropic", "market_share": 5, "public_sentiment": -2},
         {"target": "OpenAI", "stock_value": -6, "public_sentiment": -3}
-      ]
+      ],
+      "radio_blurb": "Anthropic poaches OpenAI finance lead — burn rate dossier acquired!"
     },
     {
       "sender": "Anthropic",
@@ -219,7 +237,8 @@
       "metric_impact": [
         {"target": "Anthropic", "public_sentiment": 4, "market_share": 4},
         {"target": "Google", "public_sentiment": -8, "stock_value": -5}
-      ]
+      ],
+      "radio_blurb": "Anthropic leaks Google compliance audit — regulators now have the file!"
     },
     {
       "sender": "Anthropic",
@@ -230,7 +249,8 @@
       "parameters": {"product_lines_cut": 3, "cost_save_m": 22},
       "metric_impact": [
         {"target": "Anthropic", "stock_value": 5, "cash_reserves": 18, "market_share": -5}
-      ]
+      ],
+      "radio_blurb": "Anthropic cuts three product lines to extend runway — survival mode engaged!"
     }
   ],
   "chaos_events": [
@@ -241,7 +261,8 @@
       "metric_impact": [
         {"target": "Google", "stock_value": -40, "cash_reserves": -25, "public_sentiment": -20, "market_share": -8},
         {"target": "Anthropic", "stock_value": 18, "public_sentiment": 12}
-      ]
+      ],
+      "radio_blurb": "Breaking — Brussels drops midnight AI Act bomb, enterprise deals frozen!"
     },
     {
       "name": "TSMC Fab 22 Goes Offline",
@@ -250,7 +271,8 @@
       "metric_impact": [
         {"target": "OpenAI", "stock_value": -45, "cash_reserves": -18, "market_share": -22},
         {"target": "Google", "market_share": 16, "stock_value": 10}
-      ]
+      ],
+      "radio_blurb": "TSMC Fab 22 coolant failure — GPU supply slashed for six weeks!"
     },
     {
       "name": "DOJ Files Antitrust Suit Against Market Leader",
@@ -259,7 +281,8 @@
       "metric_impact": [
         {"target": "Google", "stock_value": -55, "public_sentiment": -28, "market_share": -10},
         {"target": "OpenAI", "stock_value": 22, "market_share": 14}
-      ]
+      ],
+      "radio_blurb": "DOJ drops antitrust hammer on Google — pre-market futures cratering!"
     },
     {
       "name": "Frontier Training Data Lawsuit Certified",
@@ -268,7 +291,8 @@
       "metric_impact": [
         {"target": "OpenAI", "stock_value": -38, "cash_reserves": -30, "public_sentiment": -25},
         {"target": "Anthropic", "public_sentiment": 14, "market_share": 8}
-      ]
+      ],
+      "radio_blurb": "Federal court certifies billion-dollar training data lawsuit against OpenAI!"
     },
     {
       "name": "Hyperscaler Flash Outage Cascades",
@@ -277,7 +301,8 @@
       "metric_impact": [
         {"target": "Google", "stock_value": -28, "public_sentiment": -22, "market_share": -12},
         {"target": "Anthropic", "public_sentiment": 16, "market_share": 9}
-      ]
+      ],
+      "radio_blurb": "Google cloud cascading outage — three zones down, SLAs blown wide open!"
     },
     {
       "name": "Whistleblower Leaks Internal Benchmarks",
@@ -286,7 +311,8 @@
       "metric_impact": [
         {"target": "OpenAI", "stock_value": -35, "public_sentiment": -30, "market_share": -6},
         {"target": "Google", "public_sentiment": 12, "stock_value": 14}
-      ]
+      ],
+      "radio_blurb": "Whistleblower drops OpenAI benchmark fraud memo — credibility in freefall!"
     },
     {
       "name": "Taiwan Strait Shipping Halt",
@@ -295,7 +321,8 @@
       "metric_impact": [
         {"target": "Anthropic", "cash_reserves": -32, "market_share": -18, "stock_value": -25},
         {"target": "Google", "market_share": 11, "stock_value": 8}
-      ]
+      ],
+      "radio_blurb": "Taiwan Strait shuts down — GPU insurance spikes forty percent overnight!"
     },
     {
       "name": "Sovereign AI Mandate Hits Public Cloud",
@@ -304,7 +331,8 @@
       "metric_impact": [
         {"target": "Google", "stock_value": -32, "market_share": -20, "cash_reserves": -18},
         {"target": "OpenAI", "market_share": 13, "stock_value": 11}
-      ]
+      ],
+      "radio_blurb": "Three nations ban foreign AI hosting — Google public-sector revenue gutted!"
     },
     {
       "name": "Open-Weights Model Release From Beijing",
@@ -313,7 +341,8 @@
       "metric_impact": [
         {"target": "OpenAI", "stock_value": -30, "market_share": -15, "public_sentiment": -18},
         {"target": "Anthropic", "market_share": 12, "public_sentiment": 9}
-      ]
+      ],
+      "radio_blurb": "Beijing releases open-weights frontier model — API pricing race to the bottom!"
     },
     {
       "name": "Energy Grid Curtailment in Texas",
@@ -322,7 +351,8 @@
       "metric_impact": [
         {"target": "Anthropic", "stock_value": -22, "cash_reserves": -15, "market_share": -10},
         {"target": "OpenAI", "stock_value": 9, "market_share": 7}
-      ]
+      ],
+      "radio_blurb": "Texas grid goes dark — ERCOT brownouts kill Anthropic training run!"
     }
   ]
 }

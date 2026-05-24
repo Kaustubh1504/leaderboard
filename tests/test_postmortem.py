@@ -25,6 +25,7 @@ def _decision(corp: CorpId, action: Action, target: CorpId, **overrides) -> Agen
         confidence_score=0.75,
         parameters={},
         metric_impact=[MetricImpact(target=target, stock_value=5)],
+        radio_blurb=f"{corp.value} executes {action.value} against {target.value}!",
     )
     base.update(overrides)
     return AgentDecision(**base)
@@ -36,6 +37,7 @@ def _chaos(name: str, target: CorpId) -> ChaosEvent:
         description="test chaos event",
         target=target,
         metric_impact=[MetricImpact(target=target, stock_value=-25)],
+        radio_blurb=f"Breaking — {name} hits {target.value} hard!",
     )
 
 
@@ -51,16 +53,16 @@ def _reset_history_and_force_seed(monkeypatch):
 
 class TestHistory:
     def test_record_decision_appends(self):
-        history.record_decision(_decision(CorpId.NEXUSCORP, Action.DEFENSIVE_PIVOT, CorpId.NEXUSCORP))
+        history.record_decision(_decision(CorpId.GOOGLE, Action.DEFENSIVE_PIVOT, CorpId.GOOGLE))
         assert len(history.DECISIONS) == 1
-        assert history.DECISIONS[0].sender == CorpId.NEXUSCORP
+        assert history.DECISIONS[0].sender == CorpId.GOOGLE
 
     def test_record_chaos_appends(self):
-        history.record_chaos(_chaos("Test Shock", CorpId.VERTEXAI))
+        history.record_chaos(_chaos("Test Shock", CorpId.OPENAI))
         assert len(history.CHAOS_EVENTS) == 1
 
     def test_snapshot_returns_independent_lists(self):
-        history.record_decision(_decision(CorpId.NEXUSCORP, Action.RD_INVESTMENT, CorpId.NEXUSCORP))
+        history.record_decision(_decision(CorpId.GOOGLE, Action.RD_INVESTMENT, CorpId.GOOGLE))
         snap = history.snapshot()
         assert isinstance(snap["decisions"], list)
         # mutating the snapshot must not affect the underlying deque
@@ -69,12 +71,12 @@ class TestHistory:
 
     def test_ring_buffer_caps_at_max_history(self):
         for i in range(history.MAX_HISTORY + 50):
-            history.record_decision(_decision(CorpId.NEXUSCORP, Action.RD_INVESTMENT, CorpId.NEXUSCORP))
+            history.record_decision(_decision(CorpId.GOOGLE, Action.RD_INVESTMENT, CorpId.GOOGLE))
         assert len(history.DECISIONS) == history.MAX_HISTORY
 
     def test_reset_clears_both_series(self):
-        history.record_decision(_decision(CorpId.NEXUSCORP, Action.RD_INVESTMENT, CorpId.NEXUSCORP))
-        history.record_chaos(_chaos("X", CorpId.VERTEXAI))
+        history.record_decision(_decision(CorpId.GOOGLE, Action.RD_INVESTMENT, CorpId.GOOGLE))
+        history.record_chaos(_chaos("X", CorpId.OPENAI))
         history.reset()
         assert history.snapshot() == {"decisions": [], "chaos_events": []}
 
@@ -83,7 +85,7 @@ class TestAgentsRecordingHooks:
     """Every decision-generation path should record to history."""
 
     def test_seed_decision_records(self):
-        agents.seed_decision(CorpId.NEXUSCORP)
+        agents.seed_decision(CorpId.GOOGLE)
         assert len(history.DECISIONS) == 1
 
     def test_seed_chaos_records(self):
@@ -91,7 +93,7 @@ class TestAgentsRecordingHooks:
         assert len(history.CHAOS_EVENTS) == 1
 
     async def test_call_agent_seed_fallback_records(self):
-        await agents.call_agent(CorpId.NEXUSCORP, {"leaderboard": {}})
+        await agents.call_agent(CorpId.GOOGLE, {"leaderboard": {}})
         assert len(history.DECISIONS) == 1
 
     async def test_call_chaos_seed_fallback_records(self):
@@ -112,9 +114,9 @@ class TestSeedSummary:
         return {
             "tick": 50,
             "leaderboard": {
-                "NexusCorp":   CorpStats(stock_value=nexus,  cash_reserves=80, public_sentiment=60, market_share=40),
-                "VertexAI":    CorpStats(stock_value=vertex, cash_reserves=70, public_sentiment=55, market_share=35),
-                "ShadowScale": CorpStats(stock_value=shadow, cash_reserves=30, public_sentiment=45, market_share=20),
+                "Google":    CorpStats(stock_value=nexus,  cash_reserves=80, public_sentiment=60, market_share=40),
+                "OpenAI":    CorpStats(stock_value=vertex, cash_reserves=70, public_sentiment=55, market_share=35),
+                "Anthropic": CorpStats(stock_value=shadow, cash_reserves=30, public_sentiment=45, market_share=20),
             },
         }
 
@@ -126,47 +128,47 @@ class TestSeedSummary:
 
     def test_corps_sorted_by_stock_value_desc(self):
         # Each corp gets one decision so it shows up
-        for corp in (CorpId.NEXUSCORP, CorpId.VERTEXAI, CorpId.SHADOWSCALE):
+        for corp in (CorpId.GOOGLE, CorpId.OPENAI, CorpId.ANTHROPIC):
             history.record_decision(_decision(corp, Action.DEFENSIVE_PIVOT, corp))
         summary = agents._seed_summary(history.snapshot(), self._state(nexus=140, vertex=100, shadow=60))
-        assert [c.corp for c in summary.corps] == [CorpId.NEXUSCORP, CorpId.VERTEXAI, CorpId.SHADOWSCALE]
+        assert [c.corp for c in summary.corps] == [CorpId.GOOGLE, CorpId.OPENAI, CorpId.ANTHROPIC]
 
     def test_standing_buckets_by_stock_value(self):
-        for corp in (CorpId.NEXUSCORP, CorpId.VERTEXAI, CorpId.SHADOWSCALE):
+        for corp in (CorpId.GOOGLE, CorpId.OPENAI, CorpId.ANTHROPIC):
             history.record_decision(_decision(corp, Action.RD_INVESTMENT, corp))
         # Nexus ascendant (≥130), Vertex stable (≥80), Shadow declining (≥40)
         summary = agents._seed_summary(history.snapshot(), self._state(nexus=160, vertex=90, shadow=50))
         standings = {c.corp: c.standing for c in summary.corps}
-        assert standings[CorpId.NEXUSCORP] == "ascendant"
-        assert standings[CorpId.VERTEXAI] == "stable"
-        assert standings[CorpId.SHADOWSCALE] == "declining"
+        assert standings[CorpId.GOOGLE] == "ascendant"
+        assert standings[CorpId.OPENAI] == "stable"
+        assert standings[CorpId.ANTHROPIC] == "declining"
 
     def test_collapsing_when_stock_under_40(self):
-        history.record_decision(_decision(CorpId.SHADOWSCALE, Action.DEFENSIVE_PIVOT, CorpId.SHADOWSCALE))
+        history.record_decision(_decision(CorpId.ANTHROPIC, Action.DEFENSIVE_PIVOT, CorpId.ANTHROPIC))
         summary = agents._seed_summary(history.snapshot(), self._state(nexus=160, vertex=90, shadow=15))
-        shadow_entry = next(c for c in summary.corps if c.corp == CorpId.SHADOWSCALE)
+        shadow_entry = next(c for c in summary.corps if c.corp == CorpId.ANTHROPIC)
         assert shadow_entry.standing == "collapsing"
 
     def test_dominant_action_picks_the_most_common(self):
         # Three predatory, one defensive — predatory should dominate.
         for _ in range(3):
-            history.record_decision(_decision(CorpId.VERTEXAI, Action.PREDATORY_PRICING, CorpId.NEXUSCORP))
-        history.record_decision(_decision(CorpId.VERTEXAI, Action.DEFENSIVE_PIVOT, CorpId.VERTEXAI))
+            history.record_decision(_decision(CorpId.OPENAI, Action.PREDATORY_PRICING, CorpId.GOOGLE))
+        history.record_decision(_decision(CorpId.OPENAI, Action.DEFENSIVE_PIVOT, CorpId.OPENAI))
         summary = agents._seed_summary(history.snapshot(), self._state())
-        vertex_entry = next(c for c in summary.corps if c.corp == CorpId.VERTEXAI)
+        vertex_entry = next(c for c in summary.corps if c.corp == CorpId.OPENAI)
         assert vertex_entry.dominant_action == Action.PREDATORY_PRICING
 
     def test_most_dramatic_chaos_is_latest_when_present(self):
-        history.record_decision(_decision(CorpId.NEXUSCORP, Action.RD_INVESTMENT, CorpId.NEXUSCORP))
-        history.record_chaos(_chaos("First Shock", CorpId.NEXUSCORP))
-        history.record_chaos(_chaos("Second Shock", CorpId.VERTEXAI))
+        history.record_decision(_decision(CorpId.GOOGLE, Action.RD_INVESTMENT, CorpId.GOOGLE))
+        history.record_chaos(_chaos("First Shock", CorpId.GOOGLE))
+        history.record_chaos(_chaos("Second Shock", CorpId.OPENAI))
         summary = agents._seed_summary(history.snapshot(), self._state())
         assert summary.chaos_count == 2
         assert summary.most_dramatic_chaos == "Second Shock"
 
     def test_round_trips_through_json(self):
-        history.record_decision(_decision(CorpId.NEXUSCORP, Action.RD_INVESTMENT, CorpId.NEXUSCORP))
-        history.record_chaos(_chaos("Shock", CorpId.NEXUSCORP))
+        history.record_decision(_decision(CorpId.GOOGLE, Action.RD_INVESTMENT, CorpId.GOOGLE))
+        history.record_chaos(_chaos("Shock", CorpId.GOOGLE))
         summary = agents._seed_summary(history.snapshot(), self._state())
         replayed = PostmortemSummary.model_validate_json(summary.model_dump_json())
         assert replayed.headline == summary.headline
@@ -176,7 +178,7 @@ class TestCallSummary:
     """call_summary should hit the seed path when Gemini is stubbed out."""
 
     async def test_falls_back_to_seed_summary(self):
-        history.record_decision(_decision(CorpId.NEXUSCORP, Action.RD_INVESTMENT, CorpId.NEXUSCORP))
+        history.record_decision(_decision(CorpId.GOOGLE, Action.RD_INVESTMENT, CorpId.GOOGLE))
         summary = await agents.call_summary({"tick": 1, "leaderboard": {}})
         assert isinstance(summary, PostmortemSummary)
         assert summary.total_ticks_analyzed == 1
