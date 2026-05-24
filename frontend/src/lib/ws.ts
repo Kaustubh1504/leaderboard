@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 
+import { enqueueRadioBlurb } from "./radio";
+
 // --- Backend contract mirror (NEXUS-OS) --------------------------------- //
 // Keep in sync with backend/schemas.py StatePayload.
 
@@ -38,6 +40,8 @@ export interface LastTelemetry {
   reason: string;
   confidence_score: number;
   parameters: Record<string, unknown>;
+  // Voiceover for the audio queue. Optional — boot/system frames omit it.
+  radio_blurb?: string | null;
 }
 
 export interface ChaosMultiplier {
@@ -316,6 +320,9 @@ export function useTelemetry() {
           reason: mockEvent.reason,
           confidence_score: mockEvent.confidence_score,
           parameters: {},
+          // Mock mode borrows the human-readable msg as the blurb so the
+          // audio queue stays exercised without a backend.
+          radio_blurb: mockEvent.msg,
         },
         chaos_multipliers: prev.chaos_multipliers,
       };
@@ -330,6 +337,7 @@ export function useTelemetry() {
         formatTelemetryLog(nextPayload.last_telemetry),
         corpsFromTelemetry(mockEvent.sender, mockEvent.target),
       );
+      enqueueRadioBlurb(nextPayload.last_telemetry.sender, nextPayload.last_telemetry.radio_blurb);
 
       // Push structured event with computed deltas (impact view).
       pushEvent(nextTick, nextPayload.last_telemetry, nextLeaderboard, prev.leaderboard);
@@ -389,6 +397,8 @@ export function useTelemetry() {
                 formatTelemetryLog(telemetry),
                 corpsFromTelemetry(telemetry.sender, telemetry.target),
               );
+              // Voiceover — serial audio queue handles dedup + overlap.
+              enqueueRadioBlurb(telemetry.sender, telemetry.radio_blurb);
             }
 
             // Backend payload already uses canonical CorpId keys ("Google" etc.),

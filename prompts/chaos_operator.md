@@ -35,3 +35,11 @@ draw from:
 - Always include at least one positive ripple — chaos creates winners as well
   as losers, and the demo needs hope on the chart.
 - Never emit a "good news" event. This is chaos.
+
+## Radio Broadcast
+Every event must include a `radio_blurb` field — one short sentence in
+urgent breaking-news tone, like a Bloomberg alert ticker. No corporate
+hedging, no commentary, just the shock.
+- 10–18 words, max 120 characters total.
+- Reference the target corp by name and the dominant impact.
+- Example: `"Brussels publishes emergency AI Act amendment overnight — Google facing thirty-day compliance disclosure shock."`

@@ -57,6 +57,10 @@ class AgentDecision(BaseModel):
     # Free-form action parameters (e.g. {"margin_reduction": 0.15, "duration_ticks": 4}).
     parameters: Dict[str, Any] = Field(default_factory=dict)
     metric_impact: list[MetricImpact]
+    # Single-sentence broadcast voiceover (10-18 words), spoken by the frontend
+    # audio queue with per-corp accent profiles. Capped at 120 chars to stay
+    # under a 5s utterance budget.
+    radio_blurb: str = Field(..., max_length=120)
 
 
 class ChaosEvent(BaseModel):
@@ -65,6 +69,8 @@ class ChaosEvent(BaseModel):
     description: str = Field(..., max_length=500)
     target: CorpId  # the corp that takes the brunt; ripples land via metric_impact
     metric_impact: list[MetricImpact]
+    # Urgent broadcast voiceover (10-18 words) read by the Chaos Operator voice.
+    radio_blurb: str = Field(..., max_length=120)
 
 
 # --- Leaderboard / state payload ----------------------------------------- #
@@ -96,6 +102,9 @@ class Telemetry(BaseModel):
     reason: str = Field(..., max_length=240)
     confidence_score: float = Field(..., ge=0.0, le=1.0)
     parameters: Dict[str, Any] = Field(default_factory=dict)
+    # Voiceover for the audio queue; Optional so non-tick events (boot, system
+    # frames) can omit it without breaking validation.
+    radio_blurb: Optional[str] = Field(default=None, max_length=120)
 
 
 class ChaosMultiplier(BaseModel):

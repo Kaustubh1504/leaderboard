@@ -99,6 +99,7 @@ class TestTickLoop:
                 metric_impact=[
                     MetricImpact(target=CorpId.ANTHROPIC, public_sentiment=-20)
                 ],
+                radio_blurb="Integration test catastrophe slams Anthropic on the chaos wire.",
             )
         )
         await _run_loop(1)

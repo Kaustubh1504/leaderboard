@@ -25,6 +25,7 @@ def _decision(corp: CorpId, action: Action, target: CorpId, **overrides) -> Agen
         confidence_score=0.75,
         parameters={},
         metric_impact=[MetricImpact(target=target, stock_value=5)],
+        radio_blurb=f"{corp.value} runs a test move against {target.value} on the wire.",
     )
     base.update(overrides)
     return AgentDecision(**base)
@@ -36,6 +37,7 @@ def _chaos(name: str, target: CorpId) -> ChaosEvent:
         description="test chaos event",
         target=target,
         metric_impact=[MetricImpact(target=target, stock_value=-25)],
+        radio_blurb=f"Test chaos {name} hits {target.value} on the wire.",
     )
 
 

@@ -182,6 +182,7 @@ async def test_chaos_queue_path() -> None:
         metric_impact=[
             MetricImpact(target=CorpId.SHADOWSCALE, public_sentiment=-20),
         ],
+        radio_blurb="Smoke-test catastrophe slams ShadowScale on the chaos wire.",
     )
     await tick.queue_chaos(event)
 
