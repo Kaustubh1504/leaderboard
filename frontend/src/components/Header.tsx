@@ -23,7 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="header">
       <div className="header-title-section">
         <Activity size={28} className="text-cyan-400" style={{ color: "var(--accent-cyan)" }} />
-        <h1 className="header-title">Mad Flash</h1>
+        <h1 className="header-title">Mad Max</h1>
 
         {connectionStatus === "live" && (
           <div className="status-badge live">
